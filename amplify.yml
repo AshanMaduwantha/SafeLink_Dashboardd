@@ -1,0 +1,38 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - yarn install
+    build:
+      commands:
+        # Write environment variables to .env.production
+        - env | grep -e PGHOST >> .env.production
+        - env | grep -e PGPORT >> .env.production 
+        - env | grep -e PGUSER >> .env.production
+        - env | grep -e PGPASSWORD >> .env.production
+        - env | grep -e PGDATABASE >> .env.production 
+        - env | grep -e NEXT_AWS_REGION >> .env.production
+        - env | grep -e NEXT_AWS_ACCESS_KEY_ID >> .env.production
+        - env | grep -e NEXT_AWS_SECRET_ACCESS_KEY >> .env.production 
+        - env | grep -e S3_DANCEY_MAIN_BUCKET_NAME >> .env.production
+        - env | grep -e S3_DANCEY_MAIN_IMAGES_PATH >> .env.production
+        - env | grep -e S3_DANCEY_MAIN_VIDEOS_PATH >> .env.production
+        - env | grep -e S3_DANCEY_MAIN_PROFILE_PATH >> .env.production
+        - env | grep -e S3_NEWS_IMAGE_UPLOAD_PATH >> .env.production
+        - env | grep -e NEXTAUTH_URL >> .env.production
+        - env | grep -e NEXTAUTH_SECRET >> .env.production
+        - env | grep -e NODE_ENV >> .env.production
+        - env | grep -e FIREBASE_SERVICE_ACCOUNT >> .env.production
+        - env | grep -e FIREBASE_PROJECT_ID >> .env.production
+        # Run the build
+        - yarn build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - .next/cache/**/*
+      - node_modules/**/*
+
