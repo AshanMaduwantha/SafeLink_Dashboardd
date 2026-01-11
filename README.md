@@ -175,7 +175,7 @@ This component uses AI to automatically detect harmful social media content such
 
 ---
 
-## 4. Traffic Violation Reporting & Fine Payment(JAYAKODY J M P S B - IT22331236)
+## 4. Smart Traffic Violation Detection & Accident Prediction System(JAYAKODY J M P S B - IT22331236)
 
 ### Overview
 This component focuses on developing an AI-powered system to automatically detect traffic violations and predict accident-prone situations in real time. The system analyzes images and videos captured from CCTV cameras, mobile devices, and user submissions to identify traffic rule violations such as illegal lane crossing, signal violations, and unsafe driving behavior. It also integrates vehicle detection and number plate recognition to support enforcement actions. By providing real-time alerts and risk predictions, the system assists police authorities in improving road safety, reducing manual monitoring effort, and enabling faster response to traffic incidents.
@@ -208,7 +208,7 @@ Verified cases are stored to continuously improve model accuracy.
 ## Future Development & Enhancements (By Next Evaluation)
 - **Violation Logic Implementation:** Implement rule-based logic on top of the trained detection model to automatically classify detected events as valid traffic violations (e.g., lane violations, illegal crossings).
 - **End-to-End Testing with Images and Videos:** Test the trained models using real-world images and video inputs to validate detection accuracy and robustness under different traffic conditions.
-- **License Plate Recognition Integration: **Integrate license plate detection with OCR to extract vehicle registration numbers from detected violations.
+- **License Plate Recognition Integration:** Integrate license plate detection with OCR to extract vehicle registration numbers from detected violations.
 - **Confidence-Based Filtering:** Apply confidence score thresholds to reduce false positives and ensure reliable violation detection results.
 - **Dashboard Data Binding:** Connect model outputs (violation type, vehicle number, confidence score) to the police dashboard UI designed in Figma.
 - **Performance Evaluation & Visualization:** Analyze precision, recall, mAP, and confusion matrices to evaluate model performance and include these results in the evaluation report.
