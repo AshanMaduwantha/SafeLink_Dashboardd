@@ -69,7 +69,7 @@ https://www.figma.com/design/twgRcDduS1NeY4YLBpQNgP/Untitled?node-id=0-1&t=Ok8AV
 
 ---
 
-## 1. Community Alerts & Neighborhood Watch (INDUDUNU I W O - IT22321054)
+## 1. AI-Powered Women and Children Safety Risk Prediction System (INDUDUNU I W O - IT22321054)
 
 ### Overview
 This component is responsible for analyzing incident data related to women and children using video, audio, and text. It detects women and children from video content, extracts and transcribes audio using speech recognition, and analyzes the resulting text to identify the type of incident. The system filters relevant incidents, stores them with time and location information, and uses this data to support safety risk analysis and prediction. The main purpose of this component is to convert raw multimedia data into meaningful safety insights that can help generate alerts and improve public safety decision-making.
