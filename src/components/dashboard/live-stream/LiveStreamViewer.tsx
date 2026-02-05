@@ -33,7 +33,7 @@ export default function LiveStreamViewer({
   const initializeAgora = async () => {
     try {
       console.log("🔧 Initializing Agora Web SDK...");
-      
+
       // Create Agora client
       const agoraClient = AgoraRTC.createClient({
         mode: "live",
@@ -46,7 +46,7 @@ export default function LiveStreamViewer({
       // Handle user published event
       agoraClient.on("user-published", async (user, mediaType) => {
         console.log("👤 User published:", user.uid, mediaType);
-        
+
         await agoraClient.subscribe(user, mediaType);
         console.log("✅ Subscribed to user:", user.uid);
 
@@ -113,7 +113,9 @@ export default function LiveStreamViewer({
         {joined && remoteUsers.length === 0 && (
           <div className="text-center">
             <div className="text-6xl mb-4">📹</div>
-            <p className="text-white text-xl font-semibold">Waiting for Broadcaster...</p>
+            <p className="text-white text-xl font-semibold">
+              Waiting for Broadcaster...
+            </p>
             <p className="text-gray-400 mt-2">Channel: {channelName}</p>
           </div>
         )}
@@ -135,7 +137,8 @@ export default function LiveStreamViewer({
       {joined && remoteUsers.length > 0 && (
         <div className="absolute top-4 right-4 bg-black/60 px-4 py-2 rounded-lg">
           <p className="text-white text-sm">
-            👥 {remoteUsers.length} broadcaster{remoteUsers.length !== 1 ? "s" : ""}
+            👥 {remoteUsers.length} broadcaster
+            {remoteUsers.length !== 1 ? "s" : ""}
           </p>
         </div>
       )}

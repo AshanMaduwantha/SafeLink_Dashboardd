@@ -89,5 +89,5 @@ export const authOptions = {
     error: "/",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
+  debug: false, // set to true only when debugging auth; avoids [DEBUG_ENABLED] console noise
 };

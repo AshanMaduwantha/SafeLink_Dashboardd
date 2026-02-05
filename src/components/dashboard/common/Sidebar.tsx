@@ -4,18 +4,14 @@ import { Fragment, useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 import {
-  HomeIcon,
-  FolderIcon,
-  NewspaperIcon,
-  MegaphoneIcon,
-  CreditCardIcon,
-  UsersIcon,
   XMarkIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
-  BookOpenIcon,
-  VideoCameraIcon,
+  ExclamationTriangleIcon,
+  ShareIcon,
+  UserGroupIcon,
+  TruckIcon,
 } from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
 
@@ -53,83 +49,27 @@ export function NavigationDashboard({
 
   const navigationConfig: NavigationItem[] = [
     {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: HomeIcon,
+      name: "Emergency SOS",
+      href: "/dashboard/emergency-sos",
+      icon: ExclamationTriangleIcon,
       allowedUserLevels: ["super_admin", "admin"],
     },
     {
-      name: "Class Management",
-      href: "#",
-      icon: FolderIcon,
-      hasSubmenu: true,
-      submenu: [
-        { name: "All Classes", href: "/dashboard/classes" },
-        {
-          name: "Enrolled Classes",
-          href: "/dashboard/classes/enrolled-classes",
-        },
-        {
-          name: "Incomplete Classes",
-          href: "/dashboard/classes/incompleted-classes",
-        },
-        {
-          name: "Check-Ins",
-          href: "/dashboard/classes/check-ins",
-        },
-        {
-          name: "Class Packs",
-          href: "/dashboard/classes/class-packs",
-        },
-      ],
+      name: "Social Media",
+      href: "/dashboard/social-media",
+      icon: ShareIcon,
       allowedUserLevels: ["super_admin", "admin"],
     },
     {
-      name: "News",
-      href: "/dashboard/news-management",
-      icon: NewspaperIcon,
+      name: "Women & Children",
+      href: "/dashboard/women-children",
+      icon: UserGroupIcon,
       allowedUserLevels: ["super_admin", "admin"],
     },
     {
-      name: "Promotions",
-      href: "/dashboard/promotion",
-      icon: MegaphoneIcon,
-      allowedUserLevels: ["super_admin", "admin"],
-    },
-    {
-      name: "Memberships",
-      href: "/dashboard/membership",
-      icon: CreditCardIcon,
-      allowedUserLevels: ["super_admin", "admin"],
-    },
-    {
-      name: "Instructor",
-      href: "/dashboard/instructor",
-      icon: CreditCardIcon,
-      allowedUserLevels: ["super_admin", "admin"],
-    },
-    {
-      name: "App User Management",
-      href: "/dashboard/app-user-management",
-      icon: UsersIcon,
-      allowedUserLevels: ["super_admin"],
-    },
-    {
-      name: "Admin Management",
-      href: "/dashboard/admin",
-      icon: UsersIcon,
-      allowedUserLevels: ["super_admin"],
-    },
-    {
-      name: "Review Approvals",
-      href: "/dashboard/review-approvals",
-      icon: BookOpenIcon,
-      allowedUserLevels: ["super_admin", "admin"],
-    },
-    {
-      name: "Live Stream",
-      href: "/dashboard/live-stream",
-      icon: VideoCameraIcon,
+      name: "Traffic Violation",
+      href: "/dashboard/traffic-violation",
+      icon: TruckIcon,
       allowedUserLevels: ["super_admin", "admin"],
     },
   ];
@@ -249,7 +189,7 @@ export function NavigationDashboard({
                 <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 font-poppins">
                   <div className="flex h-16 shrink-0 items-center">
                     <span className="text-xl font-bold text-gray-900">
-                      StudioMate Portal
+                      SaFELINK
                     </span>
                   </div>
                   <nav className="flex flex-1 flex-col">
@@ -379,7 +319,7 @@ export function NavigationDashboard({
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4 font-poppins">
           <div className="flex justify-center items-center h-16">
             <span className="text-xl font-bold text-gray-900">
-              StudioMate Portal
+              SaFELINK
             </span>
           </div>
 
