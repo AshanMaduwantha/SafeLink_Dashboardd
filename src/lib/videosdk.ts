@@ -5,7 +5,9 @@ const SECRET_KEY = process.env.VIDEOSDK_SECRET_KEY;
 
 export const generateVideoSDKToken = () => {
   if (!API_KEY || !SECRET_KEY) {
-    throw new Error("VIDEOSDK_API_KEY or VIDEOSDK_SECRET_KEY missing from environment");
+    throw new Error(
+      "VIDEOSDK_API_KEY or VIDEOSDK_SECRET_KEY missing from environment",
+    );
   }
 
   const payload = {
@@ -26,7 +28,7 @@ export const generateVideoSDKToken = () => {
 export const fetchActiveSessions = async () => {
   const token = generateVideoSDKToken();
   const url = `https://api.videosdk.live/v2/sessions?status=active`;
-  
+
   const options = {
     method: "GET",
     headers: { Authorization: token, "Content-Type": "application/json" },

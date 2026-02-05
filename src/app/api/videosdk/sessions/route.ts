@@ -6,7 +6,7 @@ export async function GET() {
     const sessions = await fetchActiveSessions();
     const token = generateVideoSDKToken();
     const defaultMeetingId = process.env.VIDEOSDK_DEFAULT_MEETING_ID || "";
-    
+
     return NextResponse.json({ sessions, token, defaultMeetingId });
   } catch (error: any) {
     console.error("Error fetching sessions:", error);
