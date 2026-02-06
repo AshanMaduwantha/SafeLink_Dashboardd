@@ -16,8 +16,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "StudioMate - Web Admin Portal",
-  description: "StudioMate - Web Admin Portal",
+  title: "Safe Link - Web Admin Portal",
+  description: "Safe Link - Web Admin Portal",
 };
 
 export default function RootLayout({

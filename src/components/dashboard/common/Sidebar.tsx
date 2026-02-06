@@ -50,7 +50,7 @@ export function NavigationDashboard({
   const navigationConfig: NavigationItem[] = [
     {
       name: "Emergency SOS",
-      href: "/dashboard/emergency-sos",
+      href: "/dashboard/live-stream",
       icon: ExclamationTriangleIcon,
       allowedUserLevels: ["super_admin", "admin"],
     },
