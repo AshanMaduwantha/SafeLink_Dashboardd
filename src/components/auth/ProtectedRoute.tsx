@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   "/dashboard/social-media",
   "/dashboard/women-children",
   "/dashboard/women-childern",
+  "/dashboard/traffic-violation",
 ];
 
 interface ProtectedRouteProps {
