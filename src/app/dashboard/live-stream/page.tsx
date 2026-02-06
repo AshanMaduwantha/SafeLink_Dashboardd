@@ -12,7 +12,7 @@ const DEFAULT_CHANNEL = "live_stream_channel";
 
 export default function LiveStreamPage() {
   const [viewing, setViewing] = useState(false);
-  const [channelName, setChannelName] = useState(DEFAULT_CHANNEL);
+  const [channelName] = useState(DEFAULT_CHANNEL);
 
   const startViewing = () => {
     setViewing(true);

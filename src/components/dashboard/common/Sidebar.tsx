@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 import {
@@ -50,7 +51,7 @@ export function NavigationDashboard({
   const navigationConfig: NavigationItem[] = [
     {
       name: "Emergency SOS",
-      href: "/dashboard/emergency-sos",
+      href: "/dashboard/live-stream",
       icon: ExclamationTriangleIcon,
       allowedUserLevels: ["super_admin", "admin"],
     },
@@ -188,9 +189,14 @@ export function NavigationDashboard({
 
                 <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 font-poppins">
                   <div className="flex h-16 shrink-0 items-center">
-                    <span className="text-xl font-bold text-gray-900">
-                      SaFELINK
-                    </span>
+                    <Image
+                      src="/login.png"
+                      alt="SafeLink"
+                      width={140}
+                      height={40}
+                      className="h-10 w-auto object-contain"
+                      priority
+                    />
                   </div>
                   <nav className="flex flex-1 flex-col">
                     <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -318,9 +324,14 @@ export function NavigationDashboard({
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4 font-poppins">
           <div className="flex justify-center items-center h-16">
-            <span className="text-xl font-bold text-gray-900">
-              SaFELINK
-            </span>
+            <Image
+              src="/login.png"
+              alt="SafeLink"
+              width={140}
+              height={40}
+              className="h-10 w-auto object-contain"
+              priority
+            />
           </div>
 
           <nav className="flex flex-1 flex-col">
