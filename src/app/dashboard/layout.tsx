@@ -20,7 +20,7 @@ export default function DashboardLayout({
           setSidebarOpen={setSidebarOpen}
         />
 
-        <div className="lg:pl-72">
+        <div className="lg:pl-64">
           <TopBar setSidebarOpen={setSidebarOpen} />
 
           <main className="py-6 px-4 sm:px-6 lg:px-8">{children}</main>
