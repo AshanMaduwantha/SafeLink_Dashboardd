@@ -1,0 +1,83 @@
+# Backend for SafeLink Social Media (Harmful Content Detector API)
+# Run from repo root: npm run dev:backend  OR  cd infra && docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: safelink-hcd-postgres
+    environment:
+      POSTGRES_DB: harmful_content
+      POSTGRES_USER: hcd_user
+      POSTGRES_PASSWORD: hcd_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hcd_user -d harmful_content"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: safelink-hcd-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    container_name: safelink-hcd-api
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://hcd_user:hcd_password@postgres:5432/harmful_content
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      MEDIA_ROOT: /app/storage
+      DEMO_INPUT_DIR: /app/data/demo_inputs
+      PGSSLMODE: disable
+    volumes:
+      - ../models:/app/models
+      - ../data:/app/data
+      - ../apps/api/storage:/app/storage
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    container_name: safelink-hcd-worker
+    command: celery -A app.workers.celery_app.celery_app worker --loglevel=INFO --concurrency=2
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://hcd_user:hcd_password@postgres:5432/harmful_content
+      REDIS_URL: redis://redis:6379/0
+      MEDIA_ROOT: /app/storage
+      DEMO_INPUT_DIR: /app/data/demo_inputs
+      PGSSLMODE: disable
+    volumes:
+      - ../models:/app/models
+      - ../data:/app/data
+      - ../apps/api/storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

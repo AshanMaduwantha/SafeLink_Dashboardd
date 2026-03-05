@@ -1,0 +1,432 @@
+/*
+ * Harmful Content Detector — scoped styles
+ * All rules are scoped under .hcd-root to avoid conflicts with Tailwind CSS.
+ */
+
+.hcd-root {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1f2937;
+}
+
+.hcd-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+
+.hcd-root .hcd-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.hcd-root .hcd-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Badges & Severity ───────────────────────────────────────── */
+
+.hcd-root .hcd-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hcd-root .severity-LOW  { background: #dcfce7; }
+.hcd-root .severity-MED  { background: #fef9c3; }
+.hcd-root .severity-HIGH { background: #fed7aa; }
+.hcd-root .severity-CRITICAL { background: #fecaca; }
+
+/* ── Form elements ───────────────────────────────────────────── */
+
+.hcd-root input,
+.hcd-root select,
+.hcd-root textarea,
+.hcd-root button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px;
+  font: inherit;
+}
+
+.hcd-root button {
+  cursor: pointer;
+  background: #111827;
+  color: #fff;
+}
+
+.hcd-root table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hcd-root th,
+.hcd-root td {
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 8px;
+}
+
+/* ── Typography utilities ────────────────────────────────────── */
+
+.hcd-root .hcd-muted {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.hcd-root .hcd-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.hcd-root .hcd-empty-state {
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+/* ── Dashboard layout ────────────────────────────────────────── */
+
+.hcd-root .hcd-dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hcd-root .hcd-stats-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.hcd-root .hcd-metric-card {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hcd-root .hcd-metric-label {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.hcd-root .hcd-metric-value {
+  margin-top: 6px;
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ── Category tabs ───────────────────────────────────────────── */
+
+.hcd-root .hcd-category-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hcd-root .hcd-category-btn {
+  background: #fff;
+  color: #374151;
+}
+
+.hcd-root .hcd-category-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.hcd-root .hcd-btn-secondary {
+  background: #fff;
+  color: #111827;
+}
+
+/* ── Feed grid / cards ───────────────────────────────────────── */
+
+.hcd-root .hcd-feed-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.hcd-root .hcd-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hcd-root .hcd-feed-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.hcd-root .hcd-feed-card.critical {
+  border-left: 4px solid #ef4444;
+}
+
+.hcd-root .hcd-feed-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.hcd-root .hcd-feed-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.hcd-root .hcd-feed-sub {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 13px;
+}
+
+.hcd-root .hcd-feed-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Action buttons ──────────────────────────────────────────── */
+
+.hcd-root .hcd-action-btn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hcd-root .hcd-action-btn.view {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.hcd-root .hcd-action-btn.report {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+}
+
+.hcd-root .hcd-action-btn.source-open {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
+}
+
+/* ── Tags / status pills ─────────────────────────────────────── */
+
+.hcd-root .hcd-tag {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hcd-root .hcd-tag-new         { background: #dbeafe; color: #2563eb; }
+.hcd-root .hcd-tag-open        { background: #e5e7eb; color: #374151; }
+.hcd-root .hcd-tag-investigating{ background: #ffedd5; color: #c2410c; }
+.hcd-root .hcd-tag-resolved    { background: #dcfce7; color: #166534; }
+.hcd-root .hcd-tag-critical    { background: #fee2e2; color: #dc2626; }
+.hcd-root .hcd-tag-high        { background: #ffedd5; color: #ea580c; }
+
+/* ── Status messages ─────────────────────────────────────────── */
+
+.hcd-root .hcd-status-ok  { color: #15803d; }
+.hcd-root .hcd-status-bad { color: #b91c1c; }
+
+/* ── Detail page ─────────────────────────────────────────────── */
+
+.hcd-root .hcd-detail-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hcd-root .hcd-detail-summary-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.hcd-root .hcd-detail-stat {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.hcd-root .hcd-detail-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.hcd-root .hcd-detail-single {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.hcd-root .hcd-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hcd-root .hcd-detail-span-2 {
+  grid-column: 1 / -1;
+}
+
+.hcd-root .hcd-detail-back-btn {
+  display: inline-block;
+  font-weight: 600;
+}
+
+/* ── Evidence section ────────────────────────────────────────── */
+
+.hcd-root .hcd-evidence-item {
+  background: #ffffff;
+  border: 1px solid #dbe3f0;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hcd-root .hcd-evidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hcd-root .hcd-transcript-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.hcd-root .hcd-evidence-chip-list {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hcd-root .hcd-evidence-chip {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hcd-root .hcd-evidence-frame-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hcd-root .hcd-evidence-frame {
+  width: 180px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+}
+
+/* ── Sub-navigation bar ──────────────────────────────────────── */
+
+.hcd-root .hcd-subnav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 4px;
+}
+
+.hcd-root .hcd-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.hcd-root .hcd-nav-group-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 2px;
+}
+
+.hcd-root .hcd-nav-link {
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #334155;
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.hcd-root .hcd-nav-link:hover {
+  background: #e2e8f0;
+}
+
+.hcd-root .hcd-nav-link.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .hcd-root .hcd-feed-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hcd-root .hcd-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
