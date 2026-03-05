@@ -1,5 +1,5 @@
-import Dashboard from "@/components/dashboard/social-media/Dashboard";
+import AlertsDashboard from "@/components/harmfulContentDetector/AlertsDashboard";
 
-export default function Page() {
-  return <Dashboard />;
+export default function SocialMediaPage() {
+  return <AlertsDashboard />;
 }

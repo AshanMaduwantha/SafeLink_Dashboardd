@@ -40,3 +40,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backend API (apps/api)
+apps/api/storage/*
+!apps/api/storage/.gitkeep
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+
+# ML models (large files – do not push)
+/models
