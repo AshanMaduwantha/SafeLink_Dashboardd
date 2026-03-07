@@ -1,80 +1,528 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import {
+  GoogleMap,
+  HeatmapLayer,
+  MarkerF,
+  useJsApiLoader,
+  Libraries,
+} from "@react-google-maps/api";
+
+type IncidentItem = {
+  _id: string;
+  victim: string;
+  dateTime: string;
+  location: string;
+  description: string;
+  language?: string;
+  incidentType: "Women" | "Children" | "Women & Children";
+  severity: "Low" | "Medium" | "High" | "Critical";
+};
+
+type VideoIncidentRow = {
+  id: number;
+  location: string;
+  time: string;
+  videourl: string;
+};
+
+type DetectState = "idle" | "loading" | "success" | "error";
+
+type DetectResult = {
+  victim: string;
+  incidentType: string;
+  severity: string;
+  language: string;
+  description: string;
+};
+
+const getIncidentColor = (incidentType: IncidentItem["incidentType"]) => {
+  if (incidentType === "Women") return "bg-red-100 text-red-700";
+  if (incidentType === "Women & Children") return "bg-purple-100 text-purple-700";
+  return "bg-blue-100 text-blue-700";
+};
+
+const getSeverityColor = (severity: IncidentItem["severity"]) => {
+  if (severity === "Critical") return "bg-red-100 text-red-700";
+  if (severity === "High") return "bg-orange-100 text-orange-700";
+  if (severity === "Medium") return "bg-yellow-100 text-yellow-700";
+  return "bg-green-100 text-green-700";
+};
+
+const parseDateTime = (value: string) => {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
+
+const SEVERITY_WEIGHTS: Record<IncidentItem["severity"], number> = {
+  Low: 1,
+  Medium: 2,
+  High: 3,
+  Critical: 4,
+};
+
+const SEVERITY_HEAT_COLORS: Record<IncidentItem["severity"], string> = {
+  Low: "rgba(34, 197, 94, 0.35)",
+  Medium: "rgba(234, 179, 8, 0.35)",
+  High: "rgba(249, 115, 22, 0.35)",
+  Critical: "rgba(239, 68, 68, 0.35)",
+};
+
+const GOOGLE_MAP_LIBRARIES: Libraries = ["visualization"];
+const DEFAULT_MAP_CENTER = { lat: 6.9271, lng: 79.8612 };
+
+type HeatmapPoint = {
+  location: string;
+  incidentCount: number;
+  weightedScore: number;
+  dominantSeverity: IncidentItem["severity"];
+};
+
+const getLocationKey = (value: string) => value.trim().toLowerCase();
+
+const parseLatLngFromLocation = (location: string) => {
+  const trimmed = location.trim();
+  const match = trimmed.match(
+    /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/,
+  );
+  if (!match) return null;
+
+  const lat = Number(match[1]);
+  const lng = Number(match[2]);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+
+  return { lat, lng };
+};
+
+const formatDate = (value: string) => {
+  const parsed = parseDateTime(value);
+  if (!parsed) return value;
+  return parsed.toLocaleDateString();
+};
+
+const formatTime = (value: string) => {
+  const parsed = parseDateTime(value);
+  if (!parsed) return value;
+  return parsed.toLocaleTimeString();
+};
 
 const WomenChildrenDashboard: React.FC = () => {
-  const [view, setView] = useState<"table" | "heatmap">("table");
+  const [view, setView] = useState<"table" | "heatmap" | "video">("table");
   const [heatmapView, setHeatmapView] = useState<"live" | "history">("live");
+  const [incidents, setIncidents] = useState<IncidentItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [severityFilter, setSeverityFilter] = useState("All Severity");
+  const [categoryFilter, setCategoryFilter] = useState("All Categories");
 
-  const incidents = [
-    {
-      id: "INC001",
-      victim: "Anonymous",
-      dateTime: "2026-01-06 14:30",
-      location: "Green Valley School, Mumbai",
-      description: "Child reported verbal abuse by teacher",
-      incident: "Children",
-      incidentColor: "bg-blue-100 text-blue-700",
-      severity: "High",
-      severityColor: "bg-orange-100 text-orange-700",
-    },
-    {
-      id: "INC002",
-      victim: "Priya Sharma",
-      dateTime: "2026-01-06 09:15",
-      location: "Park Street, Kolkata",
-      description: "Domestic violence",
-      incident: "Women",
-      incidentColor: "bg-red-100 text-red-700",
-      severity: "Critical",
-      severityColor: "bg-red-100 text-red-700",
-    },
-    {
-      id: "INC003",
-      victim: "Anonymous",
-      dateTime: "2026-01-05 18:45",
-      location: "Sector 15, Delhi",
-      description: "Child found wandering",
-      incident: "Children",
-      incidentColor: "bg-blue-100 text-blue-700",
-      severity: "Medium",
-      severityColor: "bg-yellow-100 text-yellow-700",
-    },
-    {
-      id: "INC004",
-      victim: "Anita Desai",
-      dateTime: "2026-01-05 22:00",
-      location: "MG Road, Bangalore",
-      description: "Harassment in public",
-      incident: "Women",
-      incidentColor: "bg-red-100 text-red-700",
-      severity: "Medium",
-      severityColor: "bg-yellow-100 text-yellow-700",
-    },
-    {
-      id: "INC005",
-      victim: "Rahul Kumar",
-      dateTime: "2026-01-05 11:20",
-      location: "St. Mary's School, Chennai",
-      description: "Bullying incident",
-      incident: "Women",
-      incidentColor: "bg-red-100 text-red-700",
-      severity: "Medium",
-      severityColor: "bg-yellow-100 text-yellow-700",
-    },
-    {
-      id: "INC006",
-      victim: "Kavita Singh",
-      dateTime: "2026-01-04 16:30",
-      location: "Andheri West, Mumbai",
-      description: "Workplace discrimination",
-      incident: "Children",
-      incidentColor: "bg-blue-100 text-blue-700",
-      severity: "High",
-      severityColor: "bg-orange-100 text-orange-700",
-    },
-  ];
+  // Video Incidents (NeonDB)
+  const [videoIncidents, setVideoIncidents] = useState<VideoIncidentRow[]>([]);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [detectStates, setDetectStates] = useState<Record<number, DetectState>>(() => {
+    try {
+      const raw = localStorage.getItem("safelink_detect_states");
+      return raw ? (JSON.parse(raw) as Record<number, DetectState>) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [detectResults, setDetectResults] = useState<Record<number, DetectResult | string>>(() => {
+    try {
+      const raw = localStorage.getItem("safelink_detect_results");
+      return raw ? (JSON.parse(raw) as Record<number, DetectResult | string>) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [geoPoints, setGeoPoints] = useState<
+    Array<{
+      location: string;
+      position: { lat: number; lng: number };
+      weight: number;
+      incidentCount: number;
+      dominantSeverity: IncidentItem["severity"];
+    }>
+  >([]);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodingError, setGeocodingError] = useState<string | null>(null);
+  const [nowTimestamp, setNowTimestamp] = useState<number | null>(null);
+  const geocodeCache = useRef<Map<string, { lat: number; lng: number } | null>>(
+    new Map(),
+  );
+  
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  const { isLoaded: isMapLoaded, loadError } = useJsApiLoader({
+    id: "incident-heatmap-script",
+    googleMapsApiKey,
+    libraries: GOOGLE_MAP_LIBRARIES,
+  });
+
+  useEffect(() => {
+    setNowTimestamp(Date.now());
+    const intervalId = window.setInterval(() => {
+      setNowTimestamp(Date.now());
+    }, 60_000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
+    const loadIncidents = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams();
+        if (severityFilter !== "All Severity") {
+          params.set("severity", severityFilter);
+        }
+        if (categoryFilter !== "All Categories") {
+          params.set("incidentType", categoryFilter);
+        }
+
+        const query = params.toString();
+        const endpoint = query ? `/api/incidents?${query}` : "/api/incidents";
+        const response = await fetch(endpoint);
+
+        if (!response.ok) {
+          throw new Error("Failed to load incidents");
+        }
+
+        const data = await response.json();
+        setIncidents(data.incidents || []);
+      } catch (_error) {
+        setError("Could not load incidents from MongoDB.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadIncidents();
+  }, [severityFilter, categoryFilter]);
+
+  useEffect(() => {
+    if (view !== "video") return;
+    const loadVideoIncidents = async () => {
+      try {
+        setVideoLoading(true);
+        setVideoError(null);
+        const res = await fetch("/api/video-incidents");
+        if (!res.ok) throw new Error("Failed to load video incidents");
+        const data = await res.json();
+        setVideoIncidents(data.incidents || []);
+      } catch {
+        setVideoError("Could not load video incidents from database.");
+      } finally {
+        setVideoLoading(false);
+      }
+    };
+    loadVideoIncidents();
+  }, [view]);
+
+  const handleDetect = async (row: VideoIncidentRow) => {
+    setDetectStates((prev) => ({ ...prev, [row.id]: "loading" }));
+    setDetectResults((prev) => {
+      const next = { ...prev };
+      delete next[row.id];
+      return next;
+    });
+    try {
+      const res = await fetch("/api/detect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videourl: row.videourl,
+          location: row.location,
+          datetime: row.time,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Detection failed");
+
+      setDetectStates((prev) => {
+        const next = { ...prev, [row.id]: "success" as DetectState };
+        try { localStorage.setItem("safelink_detect_states", JSON.stringify(next)); } catch {}
+        return next;
+      });
+      setDetectResults((prev) => {
+        const next = { ...prev, [row.id]: data as DetectResult };
+        try { localStorage.setItem("safelink_detect_results", JSON.stringify(next)); } catch {}
+        return next;
+      });
+    } catch (err: unknown) {
+      setDetectStates((prev) => ({ ...prev, [row.id]: "error" }));
+      setDetectResults((prev) => ({
+        ...prev,
+        [row.id]: err instanceof Error ? err.message : "Detection failed",
+      }));
+    }
+  };
+
+  const heatmapPoints = useMemo(() => {
+    if (nowTimestamp === null) return [];
+    const now = nowTimestamp;
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const incidentsForView =
+      heatmapView === "live"
+        ? incidents.filter((incident) => {
+            const incidentDate = parseDateTime(incident.dateTime);
+            return incidentDate ? incidentDate.getTime() >= oneDayAgo : false;
+          })
+        : incidents;
+
+    const groupedByLocation = new Map<
+      string,
+      {
+        location: string;
+        incidentCount: number;
+        weightedScore: number;
+        severityCount: Record<IncidentItem["severity"], number>;
+      }
+    >();
+
+    for (const incident of incidentsForView) {
+      const key = getLocationKey(incident.location);
+      const existing = groupedByLocation.get(key);
+      if (existing) {
+        existing.incidentCount += 1;
+        existing.weightedScore += SEVERITY_WEIGHTS[incident.severity];
+        existing.severityCount[incident.severity] += 1;
+      } else {
+        groupedByLocation.set(key, {
+          location: incident.location.trim(),
+          incidentCount: 1,
+          weightedScore: SEVERITY_WEIGHTS[incident.severity],
+          severityCount: {
+            Low: incident.severity === "Low" ? 1 : 0,
+            Medium: incident.severity === "Medium" ? 1 : 0,
+            High: incident.severity === "High" ? 1 : 0,
+            Critical: incident.severity === "Critical" ? 1 : 0,
+          },
+        });
+      }
+    }
+
+    const points = Array.from(groupedByLocation.values()).map((group) => {
+      const severities: IncidentItem["severity"][] = [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+      ];
+      let dominantSeverity: IncidentItem["severity"] = "Low";
+      let dominantCount = -1;
+      for (const severity of severities) {
+        const count = group.severityCount[severity];
+        if (count > dominantCount) {
+          dominantSeverity = severity;
+          dominantCount = count;
+        }
+      }
+      return {
+        location: group.location,
+        incidentCount: group.incidentCount,
+        weightedScore: group.weightedScore,
+        dominantSeverity,
+      };
+    });
+
+    return points;
+  }, [heatmapView, incidents, nowTimestamp]);
+
+  const liveIncidentCount = useMemo(() => {
+    if (nowTimestamp === null) return 0;
+    const now = nowTimestamp;
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    return incidents.filter((incident) => {
+      const incidentDate = parseDateTime(incident.dateTime);
+      return incidentDate ? incidentDate.getTime() >= oneDayAgo : false;
+    }).length;
+  }, [incidents, nowTimestamp]);
+
+  useEffect(() => {
+    if (!isMapLoaded) {
+      return;
+    }
+    if (heatmapPoints.length === 0) {
+      setGeoPoints([]);
+      setGeocodingError(null);
+      return;
+    }
+
+    let isCancelled = false;
+    const geocoder = new window.google.maps.Geocoder();
+
+    const geocodeLocations = async () => {
+      try {
+        setIsGeocoding(true);
+        setGeocodingError(null);
+
+        const results = await Promise.all(
+          heatmapPoints.map(async (point) => {
+            const locationKey = getLocationKey(point.location);
+            const cached = geocodeCache.current.get(locationKey);
+            if (cached === null) return null;
+            if (cached) {
+              return {
+                location: point.location,
+                position: cached,
+                weight: point.weightedScore,
+                incidentCount: point.incidentCount,
+                dominantSeverity: point.dominantSeverity,
+              };
+            }
+
+            const directCoordinates = parseLatLngFromLocation(point.location);
+            if (directCoordinates) {
+              geocodeCache.current.set(locationKey, directCoordinates);
+              return {
+                location: point.location,
+                position: directCoordinates,
+                weight: point.weightedScore,
+                incidentCount: point.incidentCount,
+                dominantSeverity: point.dominantSeverity,
+              };
+            }
+
+            const geocodeQuery = async (address: string) =>
+              new Promise<{ lat: number; lng: number } | null>((resolve) => {
+                geocoder.geocode({ address }, (response, status) => {
+                  if (
+                    status === window.google.maps.GeocoderStatus.OK &&
+                    response &&
+                    response[0]
+                  ) {
+                    const location = response[0].geometry.location;
+                    resolve({
+                      lat: location.lat(),
+                      lng: location.lng(),
+                    });
+                    return;
+                  }
+                  resolve(null);
+                });
+              });
+
+            const fallbackQueries = [
+              point.location,
+              `${point.location}, Sri Lanka`,
+              `${point.location}, Colombo, Sri Lanka`,
+            ];
+
+            let resolvedPosition: { lat: number; lng: number } | null = null;
+            for (const query of fallbackQueries) {
+              resolvedPosition = await geocodeQuery(query);
+              if (resolvedPosition) break;
+            }
+
+            geocodeCache.current.set(locationKey, resolvedPosition);
+
+            if (!resolvedPosition) return null;
+
+            return {
+              location: point.location,
+              position: resolvedPosition,
+              weight: point.weightedScore,
+              incidentCount: point.incidentCount,
+              dominantSeverity: point.dominantSeverity,
+            };
+          }),
+        );
+
+        if (isCancelled) return;
+
+        const validPoints = results.filter(
+          (
+            item,
+          ): item is {
+            location: string;
+            position: { lat: number; lng: number };
+            weight: number;
+            incidentCount: number;
+            dominantSeverity: IncidentItem["severity"];
+          } => item !== null,
+        );
+        setGeoPoints(validPoints);
+        if (validPoints.length === 0) {
+          setGeocodingError(
+            "Could not geocode incident locations. Use recognizable place names.",
+          );
+        }
+      } catch (_error) {
+        if (!isCancelled) {
+          setGeoPoints([]);
+          setGeocodingError("Failed to geocode locations for heatmap.");
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsGeocoding(false);
+        }
+      }
+    };
+
+    geocodeLocations();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [heatmapPoints, isMapLoaded]);
+
+  const mapCenter = useMemo(() => {
+    if (geoPoints.length === 0) return DEFAULT_MAP_CENTER;
+    const totals = geoPoints.reduce(
+      (accumulator, point) => {
+        accumulator.lat += point.position.lat;
+        accumulator.lng += point.position.lng;
+        return accumulator;
+      },
+      { lat: 0, lng: 0 },
+    );
+    return {
+      lat: totals.lat / geoPoints.length,
+      lng: totals.lng / geoPoints.length,
+    };
+  }, [geoPoints]);
+
+  const heatmapData = useMemo(() => {
+    if (!isMapLoaded) return [];
+    return geoPoints.map((point) => ({
+      location: new window.google.maps.LatLng(
+        point.position.lat,
+        point.position.lng,
+      ),
+      weight: point.weight,
+    }));
+  }, [geoPoints, isMapLoaded]);
+
+  const summaryCards = useMemo(() => {
+    const highestActivityPoint = heatmapPoints.reduce<HeatmapPoint | null>(
+      (top, point) =>
+        !top || point.incidentCount > top.incidentCount ? point : top,
+      null,
+    );
+    const visibleIncidents = heatmapPoints.reduce(
+      (total, point) => total + point.incidentCount,
+      0,
+    );
+
+    return [
+      {
+        title: "Highest Activity",
+        value: highestActivityPoint
+          ? `${highestActivityPoint.location} (${highestActivityPoint.incidentCount})`
+          : "No Data",
+      },
+      { title: "Total Areas", value: `${heatmapPoints.length}` },
+      { title: "Coverage", value: `${visibleIncidents} incidents` },
+    ];
+  }, [heatmapPoints]);
 
   /* const metrics = [
     {
@@ -111,18 +559,178 @@ const WomenChildrenDashboard: React.FC = () => {
     },
   ]; */
 
-  const summaryCards = [
-    { title: "Highest Activity", value: "Downtown" },
-    { title: "Total Areas", value: "7 Districts" },
-    { title: "Coverage", value: "100%" },
-  ];
-
   const legendItems = [
     { label: "Low", color: "bg-green-500" },
     { label: "Medium", color: "bg-yellow-500" },
     { label: "High", color: "bg-orange-500" },
     { label: "Critical", color: "bg-red-500" },
   ];
+
+  if (view === "video") {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+          <div className="mb-4 flex items-center justify-between">
+            <button
+              onClick={() => setView("table")}
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              ← Back to Table
+            </button>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Video Incidents
+            </h2>
+            <span className="text-xs text-gray-400">
+              Click Detect to analyse a video and save to MongoDB
+            </span>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {["Location", "Time", "Video URL", "Action", "Result"].map(
+                      (h) => (
+                        <th
+                          key={h}
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          {h}
+                        </th>
+                      ),
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {videoLoading && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-6 py-10 text-sm text-center text-gray-500"
+                      >
+                        Loading video incidents...
+                      </td>
+                    </tr>
+                  )}
+                  {!videoLoading && videoError && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-6 py-10 text-sm text-center text-red-600"
+                      >
+                        {videoError}
+                      </td>
+                    </tr>
+                  )}
+                  {!videoLoading && !videoError && videoIncidents.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-6 py-10 text-sm text-center text-gray-500"
+                      >
+                        No video incidents found.
+                      </td>
+                    </tr>
+                  )}
+                  {!videoLoading &&
+                    !videoError &&
+                    videoIncidents.map((row) => {
+                      const state = detectStates[row.id] ?? "idle";
+                      const result = detectResults[row.id];
+                      return (
+                        <tr key={row.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-700">
+                            {row.location}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                            {new Date(row.time).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-blue-600 max-w-xs truncate">
+                            <a
+                              href={row.videourl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                            >
+                              {row.videourl}
+                            </a>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => handleDetect(row)}
+                              disabled={state === "loading"}
+                              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                                state === "loading"
+                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  : state === "success"
+                                    ? "bg-green-600 text-white hover:bg-green-700"
+                                    : state === "error"
+                                      ? "bg-red-600 text-white hover:bg-red-700"
+                                      : "bg-blue-600 text-white hover:bg-blue-700"
+                              }`}
+                            >
+                              {state === "loading"
+                                ? "Detecting…"
+                                : state === "success"
+                                  ? "Detected ✓"
+                                  : state === "error"
+                                    ? "Retry"
+                                    : "Detect"}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            {state === "loading" && (
+                              <span className="text-gray-400 text-xs">
+                                Running detection, please wait…
+                              </span>
+                            )}
+                            {state === "success" && typeof result === "object" && (
+                              <div className="space-y-0.5 text-xs text-gray-700">
+                                <p>
+                                  <span className="font-medium">Victim:</span>{" "}
+                                  {result.victim}
+                                </p>
+                                <p>
+                                  <span className="font-medium">Type:</span>{" "}
+                                  {result.incidentType}
+                                </p>
+                                <p>
+                                  <span className="font-medium">Severity:</span>{" "}
+                                  <span
+                                    className={`font-semibold ${
+                                      result.severity === "High" ||
+                                      result.severity === "Critical"
+                                        ? "text-red-600"
+                                        : result.severity === "Medium"
+                                          ? "text-yellow-600"
+                                          : "text-green-600"
+                                    }`}
+                                  >
+                                    {result.severity}
+                                  </span>
+                                </p>
+                                <p className="text-green-600 font-medium">
+                                  Saved to MongoDB ✓
+                                </p>
+                              </div>
+                            )}
+                            {state === "error" && typeof result === "string" && (
+                              <span className="text-xs text-red-600">{result}</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (view === "heatmap") {
     return (
@@ -177,120 +785,84 @@ const WomenChildrenDashboard: React.FC = () => {
               className="relative bg-gray-50 rounded-lg p-8 mb-6"
               style={{ minHeight: "400px" }}
             >
-              <svg
-                viewBox="0 0 800 400"
-                className="w-full h-full"
-                style={{ minHeight: "400px" }}
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <g>
-                  <circle cx="200" cy="150" r="90" fill="rgba(239, 68, 68, 0.25)" />
-                  <circle cx="200" cy="150" r="70" fill="rgba(239, 68, 68, 0.35)" />
-                  <circle cx="200" cy="150" r="50" fill="rgba(249, 115, 22, 0.4)" />
-                  <text
-                    x="200"
-                    y="155"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    Downtown
-                  </text>
-
-                  <circle cx="400" cy="100" r="80" fill="rgba(34, 197, 94, 0.25)" />
-                  <circle cx="400" cy="100" r="60" fill="rgba(34, 197, 94, 0.35)" />
-                  <circle cx="400" cy="100" r="45" fill="rgba(20, 184, 166, 0.4)" />
-                  <text
-                    x="400"
-                    y="105"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    North District
-                  </text>
-
-                  <circle cx="500" cy="200" r="75" fill="rgba(34, 197, 94, 0.25)" />
-                  <circle cx="500" cy="200" r="55" fill="rgba(34, 197, 94, 0.35)" />
-                  <circle cx="500" cy="200" r="40" fill="rgba(20, 184, 166, 0.4)" />
-                  <text
-                    x="500"
-                    y="205"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    Central Park
-                  </text>
-
-                  <circle cx="600" cy="150" r="70" fill="rgba(249, 115, 22, 0.25)" />
-                  <circle cx="600" cy="150" r="50" fill="rgba(249, 115, 22, 0.35)" />
-                  <circle cx="600" cy="150" r="35" fill="rgba(251, 146, 60, 0.4)" />
-                  <text
-                    x="600"
-                    y="155"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    East Side
-                  </text>
-
-                  <circle cx="150" cy="250" r="65" fill="rgba(234, 179, 8, 0.25)" />
-                  <circle cx="150" cy="250" r="45" fill="rgba(234, 179, 8, 0.35)" />
-                  <circle cx="150" cy="250" r="30" fill="rgba(34, 197, 94, 0.4)" />
-                  <text
-                    x="150"
-                    y="255"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    West End
-                  </text>
-
-                  <circle cx="350" cy="300" r="80" fill="rgba(239, 68, 68, 0.25)" />
-                  <circle cx="350" cy="300" r="60" fill="rgba(239, 68, 68, 0.35)" />
-                  <circle cx="350" cy="300" r="45" fill="rgba(249, 115, 22, 0.4)" />
-                  <text
-                    x="350"
-                    y="305"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    South Quarter
-                  </text>
-
-                  <circle cx="550" cy="320" r="70" fill="rgba(234, 179, 8, 0.25)" />
-                  <circle cx="550" cy="320" r="50" fill="rgba(234, 179, 8, 0.35)" />
-                  <circle cx="550" cy="320" r="35" fill="rgba(251, 146, 60, 0.4)" />
-                  <text
-                    x="550"
-                    y="325"
-                    textAnchor="middle"
-                    fill="#1f2937"
-                    fontSize="14"
-                    fontWeight="500"
-                  >
-                    Harbor Area
-                  </text>
-
-                  <path
-                    d="M 180 120 Q 300 80 420 120 Q 520 140 620 120 Q 640 200 600 280 Q 500 320 400 300 Q 250 320 180 250 Z"
-                    fill="none"
-                    stroke="#9ca3af"
-                    strokeWidth="2"
-                    strokeDasharray="5,5"
-                  />
-                </g>
-              </svg>
+              {!googleMapsApiKey && (
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-red-600">
+                  Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable Google heatmap.
+                </div>
+              )}
+              {googleMapsApiKey && loadError && (
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-red-600">
+                  Failed to load Google Maps. Check API key and allowed domains.
+                </div>
+              )}
+              {googleMapsApiKey && isMapLoaded && !loadError && (
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "400px" }}
+                  options={{
+                    disableDefaultUI: false,
+                    zoomControl: true,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                  }}
+                  center={mapCenter}
+                  zoom={geoPoints.length > 0 ? 11 : 8}
+                >
+                  {heatmapData.length > 0 && (
+                    <HeatmapLayer
+                      data={heatmapData}
+                      options={{
+                        radius: 35,
+                        opacity: 0.75,
+                      }}
+                    />
+                  )}
+                  {geoPoints.map((point) => (
+                    <MarkerF
+                      key={point.location}
+                      position={point.position}
+                      label={{
+                        text: `${point.incidentCount}`,
+                        color: "#111827",
+                        fontWeight: "700",
+                      }}
+                      icon={{
+                        path: window.google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: SEVERITY_HEAT_COLORS[point.dominantSeverity],
+                        fillOpacity: 1,
+                        strokeColor: "#1f2937",
+                        strokeWeight: 1,
+                      }}
+                      title={`${point.location}: ${point.incidentCount} incidents`}
+                    />
+                  ))}
+                </GoogleMap>
+              )}
+              {googleMapsApiKey &&
+                isMapLoaded &&
+                !loadError &&
+                !isGeocoding &&
+                !geocodingError &&
+                heatmapData.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500">
+                    {heatmapPoints.length === 0
+                      ? heatmapView === "live" && incidents.length > 0 && liveIncidentCount === 0
+                        ? "No incidents in the last 24 hours. Switch to History."
+                        : "No incidents available for this view."
+                      : "No geocoded locations available for this view."}
+                  </div>
+                )}
+              {googleMapsApiKey && isMapLoaded && !loadError && isGeocoding && (
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500 bg-white/65">
+                  Geocoding locations...
+                </div>
+              )}
+              {googleMapsApiKey && isMapLoaded && !loadError && geocodingError && (
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500">
+                  {geocodingError}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-6">
@@ -340,16 +912,11 @@ const WomenChildrenDashboard: React.FC = () => {
             <ChevronDownIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option>All Status</option>
-              <option>Active</option>
-              <option>Resolved</option>
-              <option>Pending</option>
-            </select>
-            <ChevronDownIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-          <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              value={severityFilter}
+              onChange={(event) => setSeverityFilter(event.target.value)}
+              className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option>All Severity</option>
               <option>Critical</option>
               <option>High</option>
@@ -359,7 +926,11 @@ const WomenChildrenDashboard: React.FC = () => {
             <ChevronDownIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option>All Categories</option>
               <option>Women</option>
               <option>Children</option>
@@ -375,12 +946,20 @@ const WomenChildrenDashboard: React.FC = () => {
             <ChevronDownIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
           </div>
-          <button
-            onClick={() => setView("heatmap")}
-            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors text-sm font-medium"
-          >
-            Heat Map
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setView("video")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Video Incidents
+            </button>
+            <button
+              onClick={() => setView("heatmap")}
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors text-sm font-medium"
+            >
+              Heat Map
+            </button>
+          </div>
         </div>
 
         {/* Incidents Table */}
@@ -396,19 +975,19 @@ const WomenChildrenDashboard: React.FC = () => {
                     />
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Incident ID
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Victim Details
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date & Time
+                    Date
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Time
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Location
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
+                    Language
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Incident
@@ -419,39 +998,71 @@ const WomenChildrenDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {incidents.map((incident) => (
-                  <tr key={incident.id} className="hover:bg-gray-50">
+                {isLoading && (
+                  <tr>
+                    <td
+                      colSpan={9}
+                      className="px-6 py-10 text-sm text-center text-gray-500"
+                    >
+                      Loading incidents...
+                    </td>
+                  </tr>
+                )}
+                {!isLoading && error && (
+                  <tr>
+                    <td
+                      colSpan={9}
+                      className="px-6 py-10 text-sm text-center text-red-600"
+                    >
+                      {error}
+                    </td>
+                  </tr>
+                )}
+                {!isLoading && !error && incidents.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={9}
+                      className="px-6 py-10 text-sm text-center text-gray-500"
+                    >
+                      No incidents found.
+                    </td>
+                  </tr>
+                )}
+                {!isLoading &&
+                  !error &&
+                  incidents.map((incident) => (
+                  <tr key={incident._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {incident.id}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {incident.victim}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {incident.dateTime}
+                      {formatDate(incident.dateTime)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {formatTime(incident.dateTime)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {incident.location}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {incident.description}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {incident.language || "English"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${incident.incidentColor}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getIncidentColor(incident.incidentType)}`}
                       >
-                        {incident.incident}
+                        {incident.incidentType}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${incident.severityColor}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(incident.severity)}`}
                       >
                         {incident.severity}
                       </span>
