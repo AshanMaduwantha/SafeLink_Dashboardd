@@ -19,6 +19,7 @@ type IncidentItem = {
   language?: string;
   incidentType: "Women" | "Children" | "Women & Children";
   severity: "Low" | "Medium" | "High" | "Critical";
+  rawLabel?: string;
 };
 
 type VideoIncidentRow = {
@@ -49,6 +50,15 @@ const getSeverityColor = (severity: IncidentItem["severity"]) => {
   if (severity === "High") return "bg-orange-100 text-orange-700";
   if (severity === "Medium") return "bg-yellow-100 text-yellow-700";
   return "bg-green-100 text-green-700";
+};
+
+const getRawLabelColor = (rawLabel: string) => {
+  const label = rawLabel?.toLowerCase() ?? "";
+  if (label.includes("harassment")) return "bg-red-100 text-red-700";
+  if (label.includes("physical_assault") || label.includes("assault")) return "bg-orange-100 text-orange-700";
+  if (label.includes("child_endangerment")) return "bg-purple-100 text-purple-700";
+  if (label.includes("unsafe_transport")) return "bg-yellow-100 text-yellow-700";
+  return "bg-blue-100 text-blue-700";
 };
 
 const parseDateTime = (value: string) => {
@@ -992,7 +1002,7 @@ const WomenChildrenDashboard: React.FC = () => {
                     Incident
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Severity
+                    Incident Type
                   </th>
                 </tr>
               </thead>
@@ -1029,7 +1039,7 @@ const WomenChildrenDashboard: React.FC = () => {
                 )}
                 {!isLoading &&
                   !error &&
-                  incidents.map((incident) => (
+                  incidents.filter((incident) => incident.rawLabel !== "normal_other").map((incident) => (
                   <tr key={incident._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
@@ -1061,9 +1071,9 @@ const WomenChildrenDashboard: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(incident.severity)}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRawLabelColor(incident.rawLabel ?? "")}`}
                       >
-                        {incident.severity}
+                        {incident.rawLabel}
                       </span>
                     </td>
                   </tr>
