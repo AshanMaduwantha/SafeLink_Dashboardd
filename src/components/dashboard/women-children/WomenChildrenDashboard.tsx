@@ -34,6 +34,7 @@ type DetectState = "idle" | "loading" | "success" | "error";
 type DetectResult = {
   victim: string;
   incidentType: string;
+  rawLabel: string;
   severity: string;
   language: string;
   description: string;
@@ -709,19 +710,10 @@ const WomenChildrenDashboard: React.FC = () => {
                                   {result.incidentType}
                                 </p>
                                 <p>
-                                  <span className="font-medium">Severity:</span>{" "}
-                                  <span
-                                    className={`font-semibold ${
-                                      result.severity === "High" ||
-                                      result.severity === "Critical"
-                                        ? "text-red-600"
-                                        : result.severity === "Medium"
-                                          ? "text-yellow-600"
-                                          : "text-green-600"
-                                    }`}
-                                  >
-                                    {result.severity}
-                                  </span>
+                                  <span className="font-medium">Incident Type:</span>{" "}
+                                  {result.rawLabel
+                                    ? result.rawLabel.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                                    : "—"}
                                 </p>
                               </div>
                             )}
