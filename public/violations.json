@@ -1,0 +1,203 @@
+{
+  "lastUpdated": "2026-03-10T19:47:11.252Z",
+  "total": 19,
+  "violations": [
+    {
+      "id": 1,
+      "sourceFile": "app_1773165239472.jpeg",
+      "detectedAt": "2026-03-10T17:54:23.165235Z",
+      "className": "class_3",
+      "confidence": 64
+    },
+    {
+      "id": 2,
+      "sourceFile": "app_1773165239472.jpeg",
+      "detectedAt": "2026-03-10T17:54:23.165235Z",
+      "className": "class_0",
+      "confidence": 61.05
+    },
+    {
+      "id": 3,
+      "sourceFile": "app_1773165884455.jpeg",
+      "detectedAt": "2026-03-10T18:04:47.627884Z",
+      "className": "class_3",
+      "confidence": 64
+    },
+    {
+      "id": 4,
+      "sourceFile": "app_1773165884455.jpeg",
+      "detectedAt": "2026-03-10T18:04:47.627884Z",
+      "className": "class_0",
+      "confidence": 61.05
+    },
+    {
+      "id": 5,
+      "sourceFile": "app_1773166354500.jpeg",
+      "detectedAt": "2026-03-10T18:12:38.803925Z",
+      "className": "class_3",
+      "confidence": 64
+    },
+    {
+      "id": 6,
+      "sourceFile": "app_1773166354500.jpeg",
+      "detectedAt": "2026-03-10T18:12:38.803925Z",
+      "className": "class_0",
+      "confidence": 61.05
+    },
+    {
+      "id": 7,
+      "sourceFile": "app_1773166658011.jpeg",
+      "detectedAt": "2026-03-10T18:17:42.738065Z",
+      "className": "class_3",
+      "confidence": 56.07,
+      "plates": [
+        "(plate 77%)"
+      ]
+    },
+    {
+      "id": 8,
+      "sourceFile": "app_1773166929220.jpeg",
+      "detectedAt": "2026-03-10T18:22:12.879500Z",
+      "className": "class_3",
+      "confidence": 76.25,
+      "plates": [
+        "(plate 89%)"
+      ]
+    },
+    {
+      "id": 9,
+      "sourceFile": "app_1773166976245.jpeg",
+      "detectedAt": "2026-03-10T18:22:59.624721Z",
+      "className": "class_3",
+      "confidence": 60.39,
+      "plates": [
+        "(plate 75%)",
+        "(plate 36%)"
+      ]
+    },
+    {
+      "id": 10,
+      "sourceFile": "app_1773166976245.jpeg",
+      "detectedAt": "2026-03-10T18:22:59.624721Z",
+      "className": "class_3",
+      "confidence": 54.39,
+      "plates": [
+        "(plate 75%)",
+        "(plate 36%)"
+      ]
+    },
+    {
+      "id": 11,
+      "sourceFile": "app_1773167050817.jpeg",
+      "detectedAt": "2026-03-10T18:24:14.200359Z",
+      "className": "class_3",
+      "confidence": 80.81,
+      "plates": [
+        "(plate 83%)"
+      ]
+    },
+    {
+      "id": 12,
+      "sourceFile": "app_1773167418139.jpeg",
+      "detectedAt": "2026-03-10T18:30:21.202025Z",
+      "className": "class_3",
+      "confidence": 64
+    },
+    {
+      "id": 13,
+      "sourceFile": "app_1773167418139.jpeg",
+      "detectedAt": "2026-03-10T18:30:21.202025Z",
+      "className": "class_0",
+      "confidence": 61.05
+    },
+    {
+      "id": 14,
+      "sourceFile": "app_1773168125218.jpeg",
+      "detectedAt": "2026-03-10T18:42:08.316963Z",
+      "className": "class_3",
+      "confidence": 64
+    },
+    {
+      "id": 15,
+      "sourceFile": "app_1773168125218.jpeg",
+      "detectedAt": "2026-03-10T18:42:08.316963Z",
+      "className": "class_0",
+      "confidence": 61.05
+    },
+    {
+      "id": 16,
+      "sourceFile": "app_1773170301094.jpeg",
+      "detectedAt": "2026-03-10T19:18:27.489838Z",
+      "className": "class_3",
+      "confidence": 76.25,
+      "plates": [
+        "CAS 98749"
+      ]
+    },
+    {
+      "id": 17,
+      "sourceFile": "app_1773170442625.jpeg",
+      "detectedAt": "2026-03-10T19:20:47.609245Z",
+      "className": "class_3",
+      "confidence": 60.39,
+      "plates": [
+        "1251-6278",
+        "es"
+      ]
+    },
+    {
+      "id": 18,
+      "sourceFile": "app_1773170442625.jpeg",
+      "detectedAt": "2026-03-10T19:20:47.609245Z",
+      "className": "class_3",
+      "confidence": 54.39,
+      "plates": [
+        "1251-6278",
+        "es"
+      ]
+    },
+    {
+      "id": 19,
+      "sourceFile": "app_1773172026643.jpeg",
+      "detectedAt": "2026-03-10T19:47:10.355572Z",
+      "className": "class_3",
+      "confidence": 76.25,
+      "plates": [
+        "CAS 98749"
+      ]
+    }
+  ],
+  "platesBySource": {
+    "app_1773166658011.jpeg": [
+      "(plate 77%)"
+    ],
+    "app_1773166929220.jpeg": [
+      "(plate 89%)"
+    ],
+    "app_1773166976245.jpeg": [
+      "(plate 75%)",
+      "(plate 36%)"
+    ],
+    "app_1773167050817.jpeg": [
+      "(plate 83%)"
+    ],
+    "app_1773170301094.jpeg": [
+      "CAS 98749"
+    ],
+    "app_1773170442625.jpeg": [
+      "1251-6278",
+      "es"
+    ],
+    "app_1773170508278.jpeg": [
+      "CAS 9819",
+      "JZ 46221"
+    ],
+    "app_1773170643466.jpeg": [
+      "CAS 9819",
+      "JZ 46221"
+    ],
+    "app_1773172026643.jpeg": [
+      "CAS 98749"
+    ]
+  }
+}
