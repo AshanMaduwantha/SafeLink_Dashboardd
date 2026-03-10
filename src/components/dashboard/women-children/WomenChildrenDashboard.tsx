@@ -976,7 +976,7 @@ const WomenChildrenDashboard: React.FC = () => {
                     />
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Victim Details
+                    Incident Victim
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
@@ -991,10 +991,10 @@ const WomenChildrenDashboard: React.FC = () => {
                     Language
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Incident
+                    Incident Type
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Incident Type
+                    Severity
                   </th>
                 </tr>
               </thead>
@@ -1039,8 +1039,12 @@ const WomenChildrenDashboard: React.FC = () => {
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {incident.victim}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getIncidentColor(incident.incidentType)}`}
+                      >
+                        {incident.incidentType}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {formatDate(incident.dateTime)}
@@ -1056,16 +1060,16 @@ const WomenChildrenDashboard: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getIncidentColor(incident.incidentType)}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRawLabelColor(incident.rawLabel ?? "")}`}
                       >
-                        {incident.incidentType}
+                        {incident.rawLabel}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRawLabelColor(incident.rawLabel ?? "")}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityColor(incident.severity)}`}
                       >
-                        {incident.rawLabel}
+                        {incident.severity}
                       </span>
                     </td>
                   </tr>
