@@ -249,7 +249,7 @@ def youtube_debug(
             "part": "snippet",
             "q": query,
             "type": "video",
-            "maxResults": min(3, max(1, limit)),
+            "maxResults": min(15, max(1, limit)),
             "key": settings.youtube_api_key,
             "order": getattr(settings, "youtube_order", None) or "date",
         }
@@ -359,6 +359,16 @@ def list_recent_posts(
         out = []
         for p in posts:
             try:
+                raw = p.raw_json or {}
+                published_at: str | None = None
+                if p.platform == "facebook":
+                    published_at = raw.get("created_time")
+                elif p.platform == "twitter":
+                    published_at = raw.get("created_at")
+                elif p.platform == "youtube":
+                    published_at = raw.get("snippet", {}).get("publishedAt")
+                if not published_at:
+                    published_at = raw.get("published_at") or raw.get("publishedAt")
                 out.append({
                     "id": p.id,
                     "platform": str(p.platform) if p.platform is not None else "",
@@ -367,6 +377,7 @@ def list_recent_posts(
                     "text": (p.text or "")[:500],
                     "url": str(p.url) if p.url is not None else None,
                     "created_at": p.created_at.isoformat() if getattr(p, "created_at", None) else None,
+                    "published_at": published_at,
                 })
             except Exception as ser:
                 raise HTTPException(status_code=500, detail=f"Serialize post {getattr(p, 'id', '?')}: {ser!s}")

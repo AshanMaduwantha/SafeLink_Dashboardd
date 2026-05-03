@@ -17,9 +17,6 @@ from app.routers import alerts, debug, ingest, users, ws
 from app.services.event_bus import subscribe_alerts
 from app.services.ingestion import (
     start_demo_folder_watcher,
-    start_facebook_polling,
-    start_twitter_polling,
-    start_youtube_polling,
 )
 from app.services.ws_manager import ws_manager
 
@@ -85,33 +82,6 @@ def _start_alert_subscription(loop: asyncio.AbstractEventLoop) -> None:
     thread.start()
 
 
-def _auto_start_ingest_polling() -> None:
-    """Start Twitter, YouTube, and Facebook background polling when credentials are configured."""
-    if settings.twitter_bearer_token:
-        start_twitter_polling(
-            SessionLocal,
-            query=settings.twitter_search_query(),
-            limit_per_poll=20,
-            interval_sec=settings.twitter_poll_interval_sec,
-        )
-    if settings.youtube_api_key:
-        start_youtube_polling(
-            SessionLocal,
-            query=settings.youtube_default_query,
-            limit_per_poll=15,
-            interval_sec=settings.youtube_poll_interval_sec,
-        )
-    if settings.facebook_page_access_token:
-        page_ids = [p.strip() for p in (settings.facebook_page_ids or "").split(",") if p.strip()]
-        if page_ids:
-            start_facebook_polling(
-                SessionLocal,
-                page_ids=page_ids,
-                limit_per_page=20,
-                interval_sec=settings.facebook_poll_interval_sec,
-            )
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
@@ -121,7 +91,6 @@ async def lifespan(app: FastAPI):
     _start_alert_subscription(loop)
     if settings.demo_mode:
         start_demo_folder_watcher(SessionLocal)
-    _auto_start_ingest_polling()
     yield
 
 

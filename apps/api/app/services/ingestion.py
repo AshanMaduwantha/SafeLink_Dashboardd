@@ -1,4 +1,5 @@
 import json
+import logging
 import shutil
 import tempfile
 import threading
@@ -9,6 +10,8 @@ from urllib.parse import urlparse
 
 import requests
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import get_settings
 from app.db.models import Media, Post
@@ -330,8 +333,9 @@ def twitter_polling_status() -> dict:
 def poll_facebook_page_posts(page_id: str, limit: int = 20) -> Iterable[dict]:
     settings = get_settings()
     if not settings.facebook_page_access_token:
+        logger.warning("poll_facebook_page_posts: FACEBOOK_PAGE_ACCESS_TOKEN is not set — skipping")
         return []
-    endpoint = f"https://graph.facebook.com/v21.0/{page_id}/posts"
+    endpoint = f"https://graph.facebook.com/v22.0/{page_id}/posts"
     params = {
         "access_token": settings.facebook_page_access_token,
         "fields": (
@@ -343,9 +347,40 @@ def poll_facebook_page_posts(page_id: str, limit: int = 20) -> Iterable[dict]:
     }
     resp = requests.get(endpoint, params=params, timeout=20)
     if resp.status_code != 200:
+        try:
+            err_body = resp.json()
+            fb_error = err_body.get("error", {})
+            logger.error(
+                "poll_facebook_page_posts: Graph API error for page %s — HTTP %s | code=%s type=%s message=%s",
+                page_id,
+                resp.status_code,
+                fb_error.get("code"),
+                fb_error.get("type"),
+                fb_error.get("message"),
+            )
+        except Exception:
+            logger.error(
+                "poll_facebook_page_posts: Graph API returned HTTP %s for page %s — body: %s",
+                resp.status_code,
+                page_id,
+                resp.text[:300],
+            )
         return []
     payload = resp.json()
-    return payload.get("data", [])
+    if "error" in payload:
+        fb_error = payload["error"]
+        logger.error(
+            "poll_facebook_page_posts: Graph API error in 200 response for page %s — code=%s type=%s message=%s",
+            page_id,
+            fb_error.get("code"),
+            fb_error.get("type"),
+            fb_error.get("message"),
+        )
+        return []
+    posts = payload.get("data", [])
+    if not posts:
+        logger.info("poll_facebook_page_posts: Graph API returned 0 posts for page %s (token valid but no posts)", page_id)
+    return posts
 
 
 def facebook_debug_fetch(page_id: Optional[str] = None, limit: int = 10) -> dict:
@@ -376,7 +411,7 @@ def facebook_debug_fetch(page_id: Optional[str] = None, limit: int = 10) -> dict
             "sample_post_ids": [],
         }
     target_page = page_id or pages[0]
-    endpoint = f"https://graph.facebook.com/v21.0/{target_page}/posts"
+    endpoint = f"https://graph.facebook.com/v22.0/{target_page}/posts"
     params = {
         "access_token": settings.facebook_page_access_token,
         "fields": (
@@ -603,8 +638,8 @@ def _facebook_poll_loop(db_factory, page_ids: list[str], limit_per_page: int, in
         db = db_factory()
         try:
             ingest_facebook_once(db, page_ids=page_ids, limit_per_page=limit_per_page)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.exception("_facebook_poll_loop: unhandled error during Facebook ingest: %s", exc)
         finally:
             db.close()
         for _ in range(max(1, interval_sec)):
@@ -675,7 +710,7 @@ def poll_youtube_search(query: str, limit: int = 15) -> Iterable[dict]:
         "part": "snippet",
         "q": query,
         "type": "video",
-        "maxResults": min(3, max(1, limit)),
+        "maxResults": min(15, max(1, limit)),
         "key": settings.youtube_api_key,
         "order": getattr(settings, "youtube_order", None) or "date",
     }

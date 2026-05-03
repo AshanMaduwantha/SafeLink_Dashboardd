@@ -41,4 +41,5 @@ export interface PostSummary {
   text: string;
   url: string | null;
   created_at: string | null;
+  published_at: string | null;
 }

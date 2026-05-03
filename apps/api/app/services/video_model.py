@@ -34,7 +34,16 @@ class VideoModel:
         class_name_norm = class_name.lower().strip()
         return any(keyword in class_name_norm for keyword in self.settings.violence_class_keywords_list)
 
-    def analyze(self, video_path: str, evidence_dir: str, fps_sample: int = 1) -> Dict:
+    @staticmethod
+    def _choose_fps_sample(duration_sec: float) -> int:
+        
+        if duration_sec < 30:
+            return 3   # 3 frames/sec — catches fast bursts in short clips
+        if duration_sec < 180:
+            return 2   # 2 frames/sec — good balance for 30s–3 min clips
+        return 1       # 1 frame/sec — saves processing time for long videos
+
+    def analyze(self, video_path: str, evidence_dir: str, fps_sample: int = 0) -> Dict:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             return {"video_score": 0.0, "evidence_frames": []}
@@ -44,7 +53,12 @@ class VideoModel:
         detection_labels: List[str] = []
         evidence_frames: List[str] = []
         native_fps = max(1.0, cap.get(cv2.CAP_PROP_FPS) or 1.0)
-        interval = int(max(1, native_fps / max(1, fps_sample)))
+        total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
+        duration_sec = total_frames / native_fps if total_frames > 0 else 0.0
+
+        # Use caller-supplied rate if explicitly set, otherwise auto-select by duration
+        effective_fps_sample = fps_sample if fps_sample > 0 else self._choose_fps_sample(duration_sec)
+        interval = int(max(1, native_fps / max(1, effective_fps_sample)))
 
         while True:
             ret, frame = cap.read()
@@ -93,8 +107,11 @@ class VideoModel:
         video_score = min(1.0, sum(detections) / max(1, len(detections))) if detections else 0.0
         return {
             "video_score": video_score,
-            "evidence_frames": evidence_frames[:12],
+            "evidence_frames": evidence_frames[:20],
             "top_detections": detection_labels[:30],
+            "duration_sec": round(duration_sec, 1),
+            "frames_sampled": frame_idx,
+            "fps_sample_used": effective_fps_sample,
         }
 
 
