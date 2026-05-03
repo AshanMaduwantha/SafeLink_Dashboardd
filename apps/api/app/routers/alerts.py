@@ -105,6 +105,20 @@ def get_alert(alert_id: int, db: Session = Depends(get_db), _: User = Depends(ge
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alert not found")
     alert, analysis, post = row
+
+    # Extract original publication time from the platform's raw payload
+    raw = post.raw_json or {}
+    published_at: str | None = None
+    if post.platform == "facebook":
+        published_at = raw.get("created_time")
+    elif post.platform == "twitter":
+        published_at = raw.get("created_at")
+    elif post.platform == "youtube":
+        published_at = raw.get("snippet", {}).get("publishedAt")
+    # Fallback: some ingested items store it directly
+    if not published_at:
+        published_at = raw.get("published_at") or raw.get("publishedAt")
+
     media_items = db.query(Media).filter(Media.post_id == post.id).all()
     media_payload = []
     for media in media_items:
@@ -137,6 +151,7 @@ def get_alert(alert_id: int, db: Session = Depends(get_db), _: User = Depends(ge
             "author": post.author,
             "text": post.text,
             "lang": post.lang,
+            "published_at": published_at,
             "raw_json": post.raw_json,
             "media": media_payload,
         },

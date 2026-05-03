@@ -44,6 +44,7 @@ services:
       DEMO_INPUT_DIR: /app/data/demo_inputs
       PGSSLMODE: disable
     volumes:
+      - ../apps/api/app:/app/app
       - ../models:/app/models
       - ../data:/app/data
       - ../apps/api/storage:/app/storage
@@ -70,6 +71,7 @@ services:
       DEMO_INPUT_DIR: /app/data/demo_inputs
       PGSSLMODE: disable
     volumes:
+      - ../apps/api/app:/app/app
       - ../models:/app/models
       - ../data:/app/data
       - ../apps/api/storage:/app/storage

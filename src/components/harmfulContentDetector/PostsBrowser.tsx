@@ -20,7 +20,12 @@ const PLATFORMS = ["all", "youtube", "twitter", "facebook", "demo"] as const;
 function formatDate(value: string | null): string {
   if (!value) return "—";
   try {
-    return new Date(value).toLocaleString();
+    // Normalise +0000 → +00:00 (Facebook omits the colon)
+    const normalised = value.replace(/([+-]\d{2})(\d{2})$/, "$1:$2");
+    const hasTimezone = /[zZ]|[+-]\d{2}:\d{2}$/.test(normalised);
+    const d = new Date(hasTimezone ? normalised : `${normalised}Z`);
+    if (isNaN(d.getTime())) return value;
+    return d.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
   } catch {
     return value;
   }
@@ -271,7 +276,9 @@ export default function PostsBrowser() {
                     {p.platform}
                   </span>
                   <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>
-                    {formatDate(p.created_at)}
+                    {p.published_at
+                      ? `Posted: ${formatDate(p.published_at)}`
+                      : `Detected: ${formatDate(p.created_at)}`}
                   </span>
                 </div>
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>

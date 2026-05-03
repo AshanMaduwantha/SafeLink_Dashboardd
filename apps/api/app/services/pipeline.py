@@ -57,8 +57,11 @@ def run_analysis(db: Session, post: Post) -> Dict:
                 **(media.meta_json or {}),
                 "transcript": audio_result.get("transcript", ""),
                 "transcript_path": audio_result.get("transcript_path", ""),
-                "evidence_frames": evidence_frames[:12],
+                "evidence_frames": evidence_frames[:20],
                 "top_detections": top_detections[:30],
+                "duration_sec": video_result.get("duration_sec"),
+                "frames_sampled": video_result.get("frames_sampled"),
+                "fps_sample_used": video_result.get("fps_sample_used"),
             }
 
     fusion = fuse_scores(
