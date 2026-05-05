@@ -38,6 +38,10 @@ type DetectResult = {
   severity: string;
   language: string;
   description: string;
+  menDetected?: boolean;
+  menCount?: Record<string, number>;
+  womenCount?: Record<string, number>;
+  childrenCount?: Record<string, number>;
 };
 
 const getIncidentColor = (incidentType: IncidentItem["incidentType"]) => {
@@ -699,24 +703,64 @@ const WomenChildrenDashboard: React.FC = () => {
                                 Running detection, please wait…
                               </span>
                             )}
-                            {state === "success" && typeof result === "object" && (
-                              <div className="space-y-0.5 text-xs text-gray-700">
-                                <p>
-                                  <span className="font-medium">Victim:</span>{" "}
-                                  {result.victim}
-                                </p>
-                                <p>
-                                  <span className="font-medium">Type:</span>{" "}
-                                  {result.incidentType}
-                                </p>
-                                <p>
-                                  <span className="font-medium">Incident Type:</span>{" "}
-                                  {result.rawLabel
-                                    ? result.rawLabel.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-                                    : "—"}
-                                </p>
-                              </div>
-                            )}
+                            {state === "success" && typeof result === "object" && (() => {
+                              const isNormalOther = result.rawLabel === "normal_other";
+                              const noWomenOrChildren =
+                                (!result.womenCount || Object.keys(result.womenCount).length === 0) &&
+                                (!result.childrenCount || Object.keys(result.childrenCount).length === 0);
+                              const menOnlyDetected = result.menDetected === true && noWomenOrChildren;
+
+                              if (isNormalOther) {
+                                return (
+                                  <div className="flex items-start gap-1.5">
+                                    <span className="mt-0.5 text-green-500 text-sm">✔</span>
+                                    <div>
+                                      <p className="text-xs font-semibold text-green-700">
+                                        No harmful indicators detected
+                                      </p>
+                                      <p className="text-xs text-green-600">
+                                        The video content appears normal and safe.
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              if (menOnlyDetected) {
+                                return (
+                                  <div className="flex items-start gap-1.5">
+                                    <span className="mt-0.5 text-amber-500 text-sm">⚠</span>
+                                    <div>
+                                      <p className="text-xs font-semibold text-amber-700">
+                                        No correct indicators
+                                      </p>
+                                      <p className="text-xs text-amber-600">
+                                        Only male subjects detected. This module monitors women &amp; children.
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className="space-y-0.5 text-xs text-gray-700">
+                                  <p>
+                                    <span className="font-medium">Victim:</span>{" "}
+                                    {result.victim}
+                                  </p>
+                                  <p>
+                                    <span className="font-medium">Type:</span>{" "}
+                                    {result.incidentType}
+                                  </p>
+                                  <p>
+                                    <span className="font-medium">Incident Type:</span>{" "}
+                                    {result.rawLabel
+                                      ? result.rawLabel.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                                      : "—"}
+                                  </p>
+                                </div>
+                              );
+                            })()}
                             {state === "error" && typeof result === "string" && (
                               <span className="text-xs text-red-600">{result}</span>
                             )}
@@ -1031,7 +1075,13 @@ const WomenChildrenDashboard: React.FC = () => {
                 )}
                 {!isLoading &&
                   !error &&
-                  incidents.filter((incident) => incident.rawLabel !== "normal_other").map((incident) => (
+                  incidents
+                  .filter((incident) => incident.rawLabel !== "normal_other")
+                  .filter((incident) => incident.rawLabel !== "no_speech")
+                  .filter((incident) =>
+                    ["Women", "Children", "Women & Children"].includes(incident.incidentType)
+                  )
+                  .map((incident) => (
                   <tr key={incident._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input

@@ -8,8 +8,10 @@ export async function POST(request: NextRequest) {
       location: string;
       datetime?: string;
     };
+    const sanitizedVideoUrl = videourl?.trim();
+    const sanitizedLocation = location?.trim();
 
-    if (!videourl || !location) {
+    if (!sanitizedVideoUrl || !sanitizedLocation) {
       return NextResponse.json(
         { error: "videourl and location are required" },
         { status: 400 },
@@ -17,12 +19,16 @@ export async function POST(request: NextRequest) {
     }
 
     const detectorUrl =
-      process.env.PYTHON_DETECTOR_URL ?? "http://localhost:8000";
+      process.env.PYTHON_DETECTOR_URL ?? "http://localhost:8010";
 
     const response = await fetch(`${detectorUrl}/detect`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videourl, location, datetime }),
+      body: JSON.stringify({
+        videourl: sanitizedVideoUrl,
+        location: sanitizedLocation,
+        datetime,
+      }),
       // Detection can take a few minutes for long videos
       // @ts-expect-error Node 18+ fetch supports signal/timeout via undici
       signal: AbortSignal.timeout(600_000),
