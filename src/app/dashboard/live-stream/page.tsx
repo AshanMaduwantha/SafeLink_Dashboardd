@@ -74,111 +74,159 @@ function formatDate(iso?: string) {
   }
 }
 
+// ─── Inline SVG icon helper ──────────────────────────────────────────────────
+const SvgIcon = ({
+  children,
+  size = 16,
+  strokeWidth = 1.8,
+}: {
+  children: React.ReactNode;
+  size?: number;
+  strokeWidth?: number;
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    {children}
+  </svg>
+);
+
 // ─── Global CSS ───────────────────────────────────────────────────────────────
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap');
-.sr-root{--bg:#f4f6f9;--surface:#ffffff;--panel:#f9fafb;--border:#e2e6ea;--accent:#1d72f5;--accent2:#7c3aed;--red:#e53e3e;--orange:#dd6b20;--yellow:#d69e2e;--green:#276749;--green-bg:#c6f6d5;--text:#1a202c;--muted:#718096;--font-head:'Rajdhani',sans-serif;--font-mono:'JetBrains Mono',monospace;--font-body:'Inter',sans-serif;background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;margin:-32px;padding:0;}
-.sr-navbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.sr-nav-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--red),var(--orange));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.sr-nav-title{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:2px;color:var(--text);}
-.sr-nav-title span{color:var(--accent);}
-.sr-nav-sub{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:2px;}
-.sr-live-dot{width:8px;height:8px;border-radius:50%;animation:sr-pulse 1.4s ease-in-out infinite;}
-.sr-nav-time{font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:1px;}
-.sr-layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 60px);}
-.sr-sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:8px;}
-.sr-sidebar-label{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;padding:12px 12px 6px;}
-.sr-sidebar-btn{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--font-body);font-size:13px;font-weight:500;transition:all .18s;width:100%;text-align:left;}
-.sr-sidebar-btn:hover{background:#edf2f7;color:var(--text);}
-.sr-sidebar-btn.active{background:#ebf4ff;color:var(--accent);border-left:2px solid var(--accent);}
-.sr-sidebar-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;font-family:var(--font-mono);}
-.sr-main{padding:28px;overflow-y:auto;display:flex;flex-direction:column;gap:24px;}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+.sr-root{
+  --bg:#f8fafc;--surface:#ffffff;--panel:#f1f5f9;--border:#e5e7eb;--border-strong:#d1d5db;
+  --accent:#2563eb;--accent-soft:#eff6ff;
+  --red:#dc2626;--red-soft:#fef2f2;--orange:#ea580c;--orange-soft:#fff7ed;
+  --yellow:#ca8a04;--yellow-soft:#fefce8;--green:#16a34a;--green-soft:#f0fdf4;
+  --text:#0f172a;--text-2:#334155;--muted:#64748b;--muted-light:#94a3b8;
+  --font-body:'Inter',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.04);
+  --shadow-md:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+  --shadow-lg:0 4px 12px rgba(15,23,42,.08),0 2px 4px rgba(15,23,42,.04);
+  background:var(--bg);color:var(--text);font-family:var(--font-body);
+  min-height:100vh;overflow-x:hidden;margin:-32px;padding:0;-webkit-font-smoothing:antialiased;
+}
+.sr-navbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.sr-nav-sub{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.sr-live-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:999px;font-size:11px;font-weight:600;color:#047857;letter-spacing:1px;}
+.sr-live-dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:sr-pulse 1.6s ease-in-out infinite;flex-shrink:0;}
+.sr-nav-time{font-family:var(--font-mono);font-size:12px;color:var(--muted);font-weight:500;}
+.sr-layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 64px);}
+.sr-sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+.sr-sidebar-label{font-size:11px;font-weight:600;color:var(--muted-light);letter-spacing:1.2px;text-transform:uppercase;padding:14px 12px 8px;}
+.sr-sidebar-btn{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;border:none;background:none;cursor:pointer;color:var(--text-2);font-family:var(--font-body);font-size:13px;font-weight:500;transition:all .15s;width:100%;text-align:left;}
+.sr-sidebar-btn:hover{background:var(--panel);color:var(--text);}
+.sr-sidebar-btn.active{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+.sr-sidebar-btn svg{flex-shrink:0;opacity:.85;}
+.sr-sidebar-btn .sev-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-left:3px;margin-right:3px;}
+.sr-sidebar-badge{margin-left:auto;background:var(--panel);color:var(--text-2);font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;font-family:var(--font-mono);min-width:26px;text-align:center;}
+.sr-sidebar-btn.active .sr-sidebar-badge{background:var(--accent);color:#fff;}
+.sr-sidebar-badge.warning{background:#fef3c7;color:#92400e;}
+.sr-cat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;font-size:12.5px;color:var(--text-2);border-radius:6px;}
+.sr-cat-row + .sr-cat-row{border-top:1px solid var(--border);}
+.sr-cat-row .count{color:var(--muted);font-family:var(--font-mono);font-weight:600;}
+.sr-cat-empty{padding:8px 12px;font-size:12px;color:var(--muted);font-style:italic;}
+.sr-main{padding:28px 32px;overflow-y:auto;display:flex;flex-direction:column;gap:24px;}
 .sr-stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;}
-.sr-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px;position:relative;overflow:hidden;transition:box-shadow .2s;box-shadow:0 1px 3px rgba(0,0,0,.05);}
-.sr-stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent-color,var(--accent));}
-.sr-stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);}
-.sr-stat-label{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
-.sr-stat-value{font-family:var(--font-head);font-size:36px;font-weight:700;color:var(--accent-color,var(--accent));line-height:1;}
-.sr-stat-sub{font-size:11px;color:var(--muted);margin-top:6px;}
-.sr-filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.sr-filter-bar h2{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:1px;color:var(--text);flex:1;}
-.sr-filter-btn{padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--font-body);}
-.sr-filter-btn:hover{border-color:var(--accent);color:var(--accent);}
-.sr-filter-btn.active{background:#ebf4ff;border-color:var(--accent);color:var(--accent);}
-.sr-filter-btn.danger.active{background:#fff5f5;border-color:var(--red);color:var(--red);}
-.sr-filter-btn.warning.active{background:#fffaf0;border-color:var(--orange);color:var(--orange);}
-.sr-refresh-btn{padding:7px 14px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:12px;cursor:pointer;transition:all .15s;font-family:var(--font-mono);letter-spacing:1px;}
-.sr-refresh-btn:hover{background:#ebf4ff;}
-.sr-incidents-list{display:flex;flex-direction:column;gap:12px;}
-.sr-incident-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s;animation:sr-slideIn .3s ease;box-shadow:0 1px 3px rgba(0,0,0,.05);}
-.sr-incident-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);transform:translateY(-1px);}
-.sr-incident-card.expanded{border-color:var(--accent);box-shadow:0 0 0 2px rgba(29,114,245,.15);}
+.sr-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 18px;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s;box-shadow:var(--shadow-sm);}
+.sr-stat-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.sr-stat-icon{width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent-color,var(--accent)) 12%,transparent);color:var(--accent-color,var(--accent));margin-bottom:14px;}
+.sr-stat-label{font-size:11.5px;color:var(--muted);font-weight:500;margin-bottom:4px;letter-spacing:.2px;}
+.sr-stat-value{font-size:28px;font-weight:700;color:var(--text);line-height:1.1;letter-spacing:-.5px;}
+.sr-stat-sub{font-size:11px;color:var(--muted-light);margin-top:5px;}
+.sr-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.sr-filter-bar h2{font-size:18px;font-weight:700;color:var(--text);flex:1;letter-spacing:-.3px;margin:0;}
+.sr-filter-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--font-body);display:inline-flex;align-items:center;gap:6px;}
+.sr-filter-btn:hover{border-color:var(--border-strong);background:var(--panel);}
+.sr-filter-btn.active{background:var(--accent-soft);border-color:#bfdbfe;color:var(--accent);font-weight:600;}
+.sr-filter-btn.danger.active{background:var(--red-soft);border-color:#fecaca;color:var(--red);}
+.sr-filter-btn.warning.active{background:var(--orange-soft);border-color:#fed7aa;color:var(--orange);}
+.sr-filter-btn .sev-dot{width:8px;height:8px;border-radius:50%;}
+.sr-refresh-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.sr-refresh-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.sr-incidents-list{display:flex;flex-direction:column;gap:10px;}
+.sr-incident-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm);animation:sr-slideIn .25s ease;}
+.sr-incident-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow-md);}
+.sr-incident-card.expanded{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
 .sr-incident-header{display:grid;grid-template-columns:4px 1fr auto;align-items:stretch;padding:16px 20px;gap:16px;}
 .sr-severity-bar{width:4px;border-radius:4px;flex-shrink:0;align-self:stretch;}
-.sr-incident-top-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;}
-.sr-incident-id{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:1px;}
-.sr-severity-badge{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 10px;border-radius:4px;border:1px solid;}
-.sev-CRITICAL{color:#c53030;border-color:#fc8181;background:#fff5f5;}
-.sev-HIGH{color:#c05621;border-color:#f6ad55;background:#fffaf0;}
-.sev-MEDIUM{color:#b7791f;border-color:#f6e05e;background:#fffff0;}
-.sev-LOW{color:#276749;border-color:#68d391;background:#f0fff4;}
-.sev-NONE{color:#718096;border-color:#cbd5e0;background:#f7fafc;}
-.sr-cat-tag{font-size:11px;padding:2px 10px;border-radius:20px;background:#edf2f7;color:#4a5568;font-weight:500;}
-.sr-incident-meta{display:flex;gap:20px;flex-wrap:wrap;}
-.sr-meta-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
-.sr-meta-link{color:var(--accent);text-decoration:none;font-size:12px;}
+.sr-incident-top-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.sr-incident-id{font-family:var(--font-mono);font-size:11px;color:var(--muted);font-weight:500;background:var(--panel);padding:3px 8px;border-radius:5px;}
+.sr-severity-badge{font-size:10px;font-weight:700;letter-spacing:.8px;padding:3px 9px;border-radius:5px;border:1px solid;}
+.sev-CRITICAL{color:#b91c1c;border-color:#fca5a5;background:#fef2f2;}
+.sev-HIGH{color:#c2410c;border-color:#fdba74;background:#fff7ed;}
+.sev-MEDIUM{color:#a16207;border-color:#fde047;background:#fefce8;}
+.sev-LOW{color:#15803d;border-color:#86efac;background:#f0fdf4;}
+.sev-NONE{color:#64748b;border-color:#cbd5e1;background:#f1f5f9;}
+.sr-cat-tag{font-size:11px;padding:3px 9px;border-radius:5px;background:var(--panel);color:var(--text-2);font-weight:500;}
+.sr-cat-tag.muted{color:var(--muted-light);}
+.sr-incident-meta{display:flex;gap:18px;flex-wrap:wrap;align-items:center;}
+.sr-meta-item{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);}
+.sr-meta-item svg{flex-shrink:0;}
+.sr-meta-link{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-size:12.5px;font-weight:500;}
 .sr-meta-link:hover{text-decoration:underline;}
-.sr-incident-actions{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0;}
-.sr-status-badge{font-family:var(--font-mono);font-size:10px;letter-spacing:1px;padding:4px 10px;border-radius:4px;font-weight:600;}
-.st-pending{background:#fefcbf;color:#744210;}
-.st-reviewed{background:#bee3f8;color:#2a4365;}
-.st-resolved{background:#c6f6d5;color:#276749;}
-.sr-notified-badge{font-size:10px;color:#276749;}
+.sr-incident-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+.sr-status-badge{font-size:10px;letter-spacing:.8px;padding:4px 10px;border-radius:5px;font-weight:700;}
+.st-pending{background:#fef3c7;color:#92400e;}
+.st-reviewed{background:#dbeafe;color:#1e40af;}
+.st-resolved{background:#d1fae5;color:#065f46;}
+.sr-notified-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#15803d;font-weight:500;}
 .sr-incident-detail{border-top:1px solid var(--border);padding:20px;background:#fafbfc;animation:sr-fadeIn .2s ease;}
-.sr-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
-.sr-detail-block{background:var(--surface);border-radius:8px;padding:14px;border:1px solid var(--border);}
-.sr-detail-block h4{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
-.sr-detail-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px;}
+.sr-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.sr-detail-block{background:var(--surface);border-radius:10px;padding:16px;border:1px solid var(--border);}
+.sr-detail-block h4{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1.2px;text-transform:uppercase;margin:0 0 12px;}
+.sr-detail-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12.5px;}
 .sr-detail-row:last-child{border-bottom:none;}
 .sr-detail-row .lbl{color:var(--muted);}
-.sr-detail-row .val{color:var(--text);font-weight:500;text-align:right;max-width:55%;word-break:break-word;}
-.sr-evidence-grid{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;}
+.sr-detail-row .val{color:var(--text);font-weight:500;text-align:right;max-width:60%;word-break:break-word;}
+.sr-evidence-grid{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;}
 .sr-evidence-img{width:200px;height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0;cursor:pointer;transition:transform .2s,box-shadow .2s;}
-.sr-evidence-img:hover{transform:scale(1.03);box-shadow:0 4px 12px rgba(0,0,0,.15);}
-.sr-no-evidence{color:var(--muted);font-size:12px;font-style:italic;}
-.sr-notes-area{width:100%;background:#fafbfc;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:var(--font-body);font-size:13px;resize:vertical;min-height:70px;margin-top:8px;}
-.sr-notes-area:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,114,245,.1);}
-.sr-detail-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-.sr-det-btn{padding:8px 18px;border-radius:8px;border:1px solid;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font-body);}
-.sr-det-btn-primary{border-color:#38a169;color:#276749;background:#f0fff4;}
-.sr-det-btn-primary:hover{background:#c6f6d5;}
-.sr-det-btn-police{border-color:#3182ce;color:#2b6cb0;background:#ebf8ff;}
-.sr-det-btn-police:hover{background:#bee3f8;}
-.sr-det-btn-resolve{border-color:#a0aec0;color:#718096;background:transparent;}
-.sr-det-btn-resolve:hover{border-color:#4a5568;color:#4a5568;}
+.sr-evidence-img:hover{transform:scale(1.02);box-shadow:var(--shadow-md);}
+.sr-no-evidence{color:var(--muted);font-size:12.5px;}
+.sr-notes-area{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-family:var(--font-body);font-size:13px;resize:vertical;min-height:70px;margin-top:8px;transition:all .15s;box-sizing:border-box;}
+.sr-notes-area:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.sr-detail-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.sr-det-btn{padding:8px 16px;border-radius:8px;border:1px solid;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font-body);display:inline-flex;align-items:center;gap:6px;}
+.sr-det-btn-primary{border-color:#34d399;color:#047857;background:#ecfdf5;}
+.sr-det-btn-primary:hover{background:#d1fae5;}
+.sr-det-btn-police{border-color:#60a5fa;color:#1e40af;background:#eff6ff;}
+.sr-det-btn-police:hover{background:#dbeafe;}
+.sr-det-btn-resolve{border-color:var(--border-strong);color:var(--muted);background:var(--surface);}
+.sr-det-btn-resolve:hover{border-color:var(--text-2);color:var(--text-2);}
 .sr-lightbox{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.85);align-items:center;justify-content:center;}
 .sr-lightbox.open{display:flex;}
-.sr-lightbox img{max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
-.sr-lightbox-close{position:absolute;top:20px;right:28px;font-size:32px;color:#fff;cursor:pointer;opacity:.7;}
+.sr-lightbox img{max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.sr-lightbox-close{position:absolute;top:20px;right:28px;font-size:28px;color:#fff;cursor:pointer;opacity:.8;line-height:1;}
 .sr-lightbox-close:hover{opacity:1;}
 .sr-toast-container{position:fixed;bottom:28px;right:28px;z-index:9500;display:flex;flex-direction:column;gap:10px;}
-.sr-toast{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:13px;color:var(--text);min-width:280px;animation:sr-toastIn .3s ease;display:flex;align-items:center;gap:12px;border-left:3px solid var(--accent);box-shadow:0 8px 32px rgba(0,0,0,.12);}
+.sr-toast{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);min-width:280px;animation:sr-toastIn .3s ease;display:flex;align-items:center;gap:12px;border-left:3px solid var(--accent);box-shadow:var(--shadow-lg);}
 .sr-toast.threat{border-left-color:var(--red);}
-.sr-spinner{text-align:center;padding:60px;color:var(--muted);font-family:var(--font-mono);font-size:13px;letter-spacing:2px;}
-.sr-spinner-ring{display:block;width:36px;height:36px;border:2px solid #e2e8f0;border-top-color:var(--accent);border-radius:50%;animation:sr-spin .8s linear infinite;margin:0 auto 20px;}
-.sr-empty-state{text-align:center;padding:80px 40px;color:var(--muted);}
-.sr-empty-state .icon{font-size:48px;margin-bottom:16px;}
-.sr-empty-state h3{font-family:var(--font-head);font-size:20px;margin-bottom:8px;color:var(--text);}
-.sr-empty-state p{font-size:13px;}
-.sr-root ::-webkit-scrollbar{width:6px;height:6px;}
+.sr-spinner{text-align:center;padding:60px;color:var(--muted);font-size:13px;font-weight:500;letter-spacing:1px;}
+.sr-spinner-ring{display:block;width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sr-spin .8s linear infinite;margin:0 auto 16px;}
+.sr-empty-state{text-align:center;padding:60px 32px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:12px;}
+.sr-empty-state .icon{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--panel);color:var(--muted);margin-bottom:14px;}
+.sr-empty-state h3{font-size:16px;font-weight:600;margin:0 0 6px;color:var(--text);}
+.sr-empty-state p{font-size:13px;margin:0;}
+.sr-root ::-webkit-scrollbar{width:8px;height:8px;}
 .sr-root ::-webkit-scrollbar-track{background:transparent;}
-.sr-root ::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:3px;}
-.sr-root ::-webkit-scrollbar-thumb:hover{background:#a0aec0;}
-@media(max-width:1100px){.sr-stats-grid{grid-template-columns:repeat(3,1fr);}.sr-layout{grid-template-columns:1fr;}.sr-sidebar{display:none;}.sr-detail-grid{grid-template-columns:1fr;}}
-@media(max-width:680px){.sr-stats-grid{grid-template-columns:repeat(2,1fr);}.sr-incident-header{grid-template-columns:4px 1fr;}.sr-incident-actions{display:none;}}
-@keyframes sr-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.sr-root ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px;}
+.sr-root ::-webkit-scrollbar-thumb:hover{background:var(--muted-light);}
+@media(max-width:1280px){.sr-stats-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:1100px){.sr-layout{grid-template-columns:1fr;}.sr-sidebar{display:none;}.sr-detail-grid{grid-template-columns:1fr;}}
+@media(max-width:680px){.sr-stats-grid{grid-template-columns:repeat(2,1fr);}.sr-incident-header{grid-template-columns:4px 1fr;}.sr-incident-actions{display:none;}.sr-main{padding:20px 16px;}}
+@keyframes sr-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 @keyframes sr-spin{to{transform:rotate(360deg)}}
-@keyframes sr-slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sr-slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes sr-fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes sr-toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 `;
@@ -334,7 +382,7 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ police_notified: true, admin_notes: notes }),
       });
-      showToast("✅ Police notification recorded");
+      showToast("Police notification recorded");
       setDetailCache((p) => {
         const m = new Map(p);
         m.delete(id);
@@ -353,6 +401,92 @@ export default function DashboardPage() {
       resolved: "st-resolved",
     })[s] ?? "st-pending";
 
+  // ── Stat card config (UI only) ─────────────────────────────────────────
+  const statCards: {
+    label: string;
+    value: number | undefined;
+    sub: string;
+    color: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      label: "Total Reports",
+      value: stats?.total,
+      sub: "All time",
+      color: "#2563eb",
+      icon: (
+        <SvgIcon size={18}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </SvgIcon>
+      ),
+    },
+    {
+      label: "Threats Detected",
+      value: stats?.threats_detected,
+      sub: "Confirmed incidents",
+      color: "#dc2626",
+      icon: (
+        <SvgIcon size={18}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </SvgIcon>
+      ),
+    },
+    {
+      label: "Pending Review",
+      value: stats?.pending_review,
+      sub: "Awaiting action",
+      color: "#d97706",
+      icon: (
+        <SvgIcon size={18}>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </SvgIcon>
+      ),
+    },
+    {
+      label: "Critical",
+      value: stats?.critical,
+      sub: "Firearms detected",
+      color: "#b91c1c",
+      icon: (
+        <SvgIcon size={18}>
+          <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </SvgIcon>
+      ),
+    },
+    {
+      label: "High Severity",
+      value: stats?.high,
+      sub: "Knives / Fire",
+      color: "#ea580c",
+      icon: (
+        <SvgIcon size={18}>
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </SvgIcon>
+      ),
+    },
+    {
+      label: "Police Notified",
+      value: stats?.police_notified,
+      sub: "Via admin call",
+      color: "#15803d",
+      icon: (
+        <SvgIcon size={18}>
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        </SvgIcon>
+      ),
+    },
+  ];
+
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
@@ -361,23 +495,13 @@ export default function DashboardPage() {
         {/* NAVBAR */}
         <nav className="sr-navbar">
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="sr-nav-sub">COMMAND CENTER</span>
+            <span className="sr-nav-sub">Command Center</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                color: "#276749",
-                letterSpacing: 1,
-              }}
-            >
-              <div className="sr-live-dot" style={{ background: "#38a169" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <span className="sr-live-badge">
+              <span className="sr-live-dot" />
               LIVE MONITORING
-            </div>
+            </span>
             <span className="sr-nav-time">{clock}</span>
           </div>
         </nav>
@@ -391,18 +515,27 @@ export default function DashboardPage() {
               className={`sr-sidebar-btn${isActive("all", null) ? " active" : ""}`}
               onClick={() => applyFilter("all")}
             >
-              <span>📋</span> All Incidents
+              <SvgIcon>
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <circle cx="3.8" cy="6" r="1.2" />
+                <circle cx="3.8" cy="12" r="1.2" />
+                <circle cx="3.8" cy="18" r="1.2" />
+              </SvgIcon>
+              All Incidents
               <span className="sr-sidebar-badge">{stats?.total ?? 0}</span>
             </button>
             <button
               className={`sr-sidebar-btn${isActive("pending", null) ? " active" : ""}`}
               onClick={() => applyFilter("pending")}
             >
-              <span>⏳</span> Pending Review
-              <span
-                className="sr-sidebar-badge"
-                style={{ background: "#ffd600", color: "#000" }}
-              >
+              <SvgIcon>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </SvgIcon>
+              Pending Review
+              <span className="sr-sidebar-badge warning">
                 {stats?.pending_review ?? 0}
               </span>
             </button>
@@ -410,67 +543,57 @@ export default function DashboardPage() {
               className={`sr-sidebar-btn${isActive("reviewed", null) ? " active" : ""}`}
               onClick={() => applyFilter("reviewed")}
             >
-              <span>🔍</span> Reviewed
+              <SvgIcon>
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </SvgIcon>
+              Reviewed
             </button>
             <button
               className={`sr-sidebar-btn${isActive("resolved", null) ? " active" : ""}`}
               onClick={() => applyFilter("resolved")}
             >
-              <span>✅</span> Resolved
+              <SvgIcon>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </SvgIcon>
+              Resolved
             </button>
 
-            <div className="sr-sidebar-label" style={{ marginTop: 12 }}>
-              Severity
-            </div>
+            <div className="sr-sidebar-label">Severity</div>
             <button
               className={`sr-sidebar-btn${isActive("all", "CRITICAL") ? " active" : ""}`}
               onClick={() => applySev("CRITICAL")}
             >
-              <span>🔴</span> Critical
+              <span className="sev-dot" style={{ background: "#dc2626" }} />
+              Critical
             </button>
             <button
               className={`sr-sidebar-btn${isActive("all", "HIGH") ? " active" : ""}`}
               onClick={() => applySev("HIGH")}
             >
-              <span>🟠</span> High
+              <span className="sev-dot" style={{ background: "#ea580c" }} />
+              High
             </button>
             <button
               className={`sr-sidebar-btn${isActive("all", "MEDIUM") ? " active" : ""}`}
               onClick={() => applySev("MEDIUM")}
             >
-              <span>🟡</span> Medium
+              <span className="sev-dot" style={{ background: "#eab308" }} />
+              Medium
             </button>
 
-            <div className="sr-sidebar-label" style={{ marginTop: 12 }}>
-              Category Breakdown
-            </div>
-            <div
-              style={{ padding: "0 12px", fontSize: 12, color: "var(--muted)" }}
-            >
+            <div className="sr-sidebar-label">Category Breakdown</div>
+            <div style={{ padding: "0 4px" }}>
               {stats?.category_breakdown?.length ? (
                 stats.category_breakdown.map((c) => (
-                  <div
-                    key={c.category}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "4px 0",
-                      borderBottom: "1px solid var(--border)",
-                    }}
-                  >
+                  <div key={c.category} className="sr-cat-row">
                     <span>{c.category}</span>
-                    <span
-                      style={{
-                        color: "var(--text)",
-                        fontFamily: "var(--font-mono)",
-                      }}
-                    >
-                      {c.count}
-                    </span>
+                    <span className="count">{c.count}</span>
                   </div>
                 ))
               ) : (
-                <span>No detections yet</span>
+                <div className="sr-cat-empty">No detections yet</div>
               )}
             </div>
           </aside>
@@ -479,38 +602,15 @@ export default function DashboardPage() {
           <main className="sr-main">
             {/* Stats */}
             <div className="sr-stats-grid">
-              {(
-                [
-                  ["Total Reports", stats?.total, "All time", "#1d72f5"],
-                  [
-                    "Threats Detected",
-                    stats?.threats_detected,
-                    "Confirmed incidents",
-                    "#e53e3e",
-                  ],
-                  [
-                    "Pending Review",
-                    stats?.pending_review,
-                    "Awaiting action",
-                    "#d69e2e",
-                  ],
-                  ["Critical", stats?.critical, "Firearms detected", "#c53030"],
-                  ["High Severity", stats?.high, "Knives / Fire", "#dd6b20"],
-                  [
-                    "Police Notified",
-                    stats?.police_notified,
-                    "Via admin call",
-                    "#276749",
-                  ],
-                ] as [string, number | undefined, string, string][]
-              ).map(([label, val, sub, color]) => (
+              {statCards.map(({ label, value, sub, color, icon }) => (
                 <div
                   key={label}
                   className="sr-stat-card"
                   style={{ "--accent-color": color } as React.CSSProperties}
                 >
+                  <div className="sr-stat-icon">{icon}</div>
                   <div className="sr-stat-label">{label}</div>
-                  <div className="sr-stat-value">{val ?? "—"}</div>
+                  <div className="sr-stat-value">{value ?? "—"}</div>
                   <div className="sr-stat-sub">{sub}</div>
                 </div>
               ))}
@@ -518,7 +618,7 @@ export default function DashboardPage() {
 
             {/* Filter bar */}
             <div className="sr-filter-bar">
-              <h2>INCIDENT FEED</h2>
+              <h2>Incident Feed</h2>
               <button
                 className={`sr-filter-btn${isActive("all", null) ? " active" : ""}`}
                 onClick={() => applyFilter("all")}
@@ -529,16 +629,23 @@ export default function DashboardPage() {
                 className={`sr-filter-btn danger${isActive("all", "CRITICAL") ? " active" : ""}`}
                 onClick={() => applySev("CRITICAL")}
               >
-                🔴 Critical
+                <span className="sev-dot" style={{ background: "#dc2626" }} />
+                Critical
               </button>
               <button
                 className={`sr-filter-btn warning${isActive("all", "HIGH") ? " active" : ""}`}
                 onClick={() => applySev("HIGH")}
               >
-                🟠 High
+                <span className="sev-dot" style={{ background: "#ea580c" }} />
+                High
               </button>
               <button className="sr-refresh-btn" onClick={refreshAll}>
-                ⟳ REFRESH
+                <SvgIcon size={14}>
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </SvgIcon>
+                Refresh
               </button>
             </div>
 
@@ -547,17 +654,27 @@ export default function DashboardPage() {
               {incLoading ? (
                 <div className="sr-spinner">
                   <span className="sr-spinner-ring" />
-                  LOADING INCIDENTS
+                  Loading incidents…
                 </div>
               ) : serverError ? (
                 <div className="sr-empty-state">
-                  <div className="icon">⚠️</div>
+                  <span className="icon">
+                    <SvgIcon size={28}>
+                      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </SvgIcon>
+                  </span>
                   <h3>Cannot connect to server</h3>
                   <p>Make sure Flask is running on {API_BASE_URL}</p>
                 </div>
               ) : incidents.length === 0 ? (
                 <div className="sr-empty-state">
-                  <div className="icon">📭</div>
+                  <span className="icon">
+                    <SvgIcon size={26}>
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </SvgIcon>
+                  </span>
                   <h3>No incidents found</h3>
                   <p>No reports match your current filter.</p>
                 </div>
@@ -605,10 +722,7 @@ export default function DashboardPage() {
                                   </span>
                                 ))
                               ) : (
-                                <span
-                                  className="sr-cat-tag"
-                                  style={{ color: "var(--muted)" }}
-                                >
+                                <span className="sr-cat-tag muted">
                                   no threat
                                 </span>
                               )}
@@ -616,11 +730,19 @@ export default function DashboardPage() {
                           </div>
                           <div className="sr-incident-meta">
                             <span className="sr-meta-item">
-                              📍 {loc.town ?? "—"}
+                              <SvgIcon size={14}>
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                              </SvgIcon>
+                              {loc.town ?? "—"}
                               {loc.district ? ", " + loc.district : ""}
                             </span>
                             <span className="sr-meta-item">
-                              🕐 {formatDate(inc.submitted_at)}
+                              <SvgIcon size={14}>
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                              </SvgIcon>
+                              {formatDate(inc.submitted_at)}
                             </span>
                             {loc.maps_url && (
                               <a
@@ -630,11 +752,20 @@ export default function DashboardPage() {
                                 rel="noreferrer"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                🗺️ Maps
+                                <SvgIcon size={14}>
+                                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                                  <line x1="8" y1="2" x2="8" y2="18" />
+                                  <line x1="16" y1="6" x2="16" y2="22" />
+                                </SvgIcon>
+                                Maps
                               </a>
                             )}
                             <span className="sr-meta-item">
-                              📸 {det.total_detections ?? 0} detections
+                              <SvgIcon size={14}>
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                <circle cx="12" cy="13" r="4" />
+                              </SvgIcon>
+                              {det.total_detections ?? 0} detections
                             </span>
                           </div>
                         </div>
@@ -646,7 +777,10 @@ export default function DashboardPage() {
                           </span>
                           {inc.police_notified && (
                             <span className="sr-notified-badge">
-                              ✅ Police notified
+                              <SvgIcon size={12} strokeWidth={2.4}>
+                                <polyline points="20 6 9 17 4 12" />
+                              </SvgIcon>
+                              Police notified
                             </span>
                           )}
                         </div>
@@ -676,7 +810,7 @@ export default function DashboardPage() {
             className="sr-lightbox open"
             onClick={() => setLightboxSrc(null)}
           >
-            <span className="sr-lightbox-close">✕</span>
+            <span className="sr-lightbox-close">×</span>
             <img
               src={lightboxSrc}
               alt="Evidence"
@@ -689,7 +823,21 @@ export default function DashboardPage() {
         <div className="sr-toast-container">
           {toasts.map((t) => (
             <div key={t.id} className={`sr-toast${t.threat ? " threat" : ""}`}>
-              <span>{t.threat ? "🚨" : "ℹ️"}</span>
+              <SvgIcon size={16} strokeWidth={2}>
+                {t.threat ? (
+                  <>
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </>
+                ) : (
+                  <>
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </>
+                )}
+              </SvgIcon>
               <span>{t.msg}</span>
             </div>
           ))}
@@ -724,7 +872,7 @@ function IncidentDetail({
       <div className="sr-incident-detail">
         <div className="sr-spinner">
           <span className="sr-spinner-ring" />
-          LOADING DETAILS
+          Loading details…
         </div>
       </div>
     );
@@ -766,7 +914,7 @@ function IncidentDetail({
                   rel="noreferrer"
                   className="sr-meta-link"
                 >
-                  Open Google Maps ↗
+                  Open Google Maps →
                 </a>
               ) : (
                 "—"
@@ -833,7 +981,7 @@ function IncidentDetail({
       </div>
 
       {/* Evidence images */}
-      <div className="sr-detail-block" style={{ marginBottom: 20 }}>
+      <div className="sr-detail-block" style={{ marginBottom: 16 }}>
         <h4>Evidence Images (YOLO Annotated)</h4>
         {imgs.length ? (
           <div className="sr-evidence-grid">
@@ -873,18 +1021,29 @@ function IncidentDetail({
             className="sr-det-btn sr-det-btn-primary"
             onClick={() => onSaveNotes(inc._id, "reviewed", notes)}
           >
-            ✓ Mark as Reviewed
+            <SvgIcon size={14} strokeWidth={2.2}>
+              <polyline points="20 6 9 17 4 12" />
+            </SvgIcon>
+            Mark as Reviewed
           </button>
           <button
             className="sr-det-btn sr-det-btn-police"
             onClick={() => onMarkPolice(inc._id, notes)}
           >
-            📞 Mark Police Notified
+            <SvgIcon size={14}>
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </SvgIcon>
+            Mark Police Notified
           </button>
           <button
             className="sr-det-btn sr-det-btn-resolve"
             onClick={() => onSaveNotes(inc._id, "resolved", notes)}
           >
+            <SvgIcon size={14}>
+              <polyline points="21 8 21 21 3 21 3 8" />
+              <rect x="1" y="3" width="22" height="5" />
+              <line x1="10" y1="12" x2="14" y2="12" />
+            </SvgIcon>
             Archive / Resolve
           </button>
         </div>
