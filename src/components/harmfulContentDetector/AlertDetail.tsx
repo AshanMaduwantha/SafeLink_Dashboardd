@@ -421,8 +421,8 @@ export default function AlertDetail() {
                   <div>
                     <div className="hcd-evidence-detect-label">What was detected:</div>
                     <div className="hcd-evidence-chip-list">
-                      {topDetections.slice(0, 12).map((d) => (
-                        <DetectionBadge key={d} label={d} />
+                      {topDetections.slice(0, 12).map((d, i) => (
+                        <DetectionBadge key={`${idx}-${i}-${d}`} label={d} />
                       ))}
                     </div>
                   </div>
@@ -433,10 +433,10 @@ export default function AlertDetail() {
                   <div>
                     <div className="hcd-evidence-detect-label">Key frames from the video:</div>
                     <div className="hcd-evidence-frame-grid">
-                      {evidenceFrames.slice(0, 8).map((frameUrl) => (
+                      {evidenceFrames.slice(0, 8).map((frameUrl, i) => (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          key={frameUrl}
+                          key={`${idx}-${i}-${frameUrl}`}
                           src={`${HCD_API_BASE}${frameUrl}`}
                           alt="Evidence frame"
                           className="hcd-evidence-frame"
